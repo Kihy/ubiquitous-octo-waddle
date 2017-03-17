@@ -9,14 +9,19 @@
 using namespace std;
 
 //--Globals ---------------------------------------------------------------
+
+// Camera controls
 // angle of rotation for the camera direction
 float angle=0.0;
 // actual vector representing the camera's direction
 float lx=0.0f,lz=-1.0f;
 // XZ position of the camera
 float x=0.0f,z=10.0f;
-
+// camera height
 float cam=2.5;
+
+// Robot Controls
+float arm_angle=0;
 
 //--Draws a grid of lines on the floor plane -------------------------------
 void drawFloor()
@@ -65,6 +70,10 @@ void drawModel()
 
 	glColor3f(0., 0., 1.);			//Right arm
 	glPushMatrix();
+	  
+	  	  glTranslatef(-2,6.5,0);
+	  glRotatef(arm_angle,1,0,0);
+	  glTranslatef(2,-6.5,0);
 	  glTranslatef(-2, 5, 0);
 	  glScalef(1, 4, 1);
 	  glutSolidCube(1);
@@ -78,6 +87,15 @@ void drawModel()
 	glPopMatrix();
 }
 
+void drawHouse(){
+	//wall
+	glColor3f(0., 0., 0.);
+	glPushMatrix();
+	  glTranslatef(-100, 5, 0);
+	  glScalef(0.5, 10, 100);
+	  glutSolidCube(1);
+	glPopMatrix();
+	}
 
 //--Display: ---------------------------------------------------------------
 //--This is the main display module containing function calls for generating
@@ -100,6 +118,7 @@ void display()
     drawFloor();
 
 	glEnable(GL_LIGHTING);	       //Enable lighting when drawing the model
+	drawHouse();
 	drawModel();
 
 	glFlush();
@@ -158,6 +177,13 @@ void processSpecialKeys(int key, int xx, int yy) {
 	glutPostRedisplay();
 }
 
+//  ------- Timer ----------------------------------------------------------
+void Timer(int value){
+    arm_angle += 1;
+    glutPostRedisplay();
+    glutTimerFunc(100, Timer, 100);
+}
+
 //  ------- Main: Initialize glut window and register call backs -----------
 int main(int argc, char** argv)
 {
@@ -170,6 +196,7 @@ int main(int argc, char** argv)
 
    glutDisplayFunc(display);
    glutSpecialFunc(processSpecialKeys); 
+   glutTimerFunc(100,Timer,100);
    glutMainLoop();
    return 0;
 }

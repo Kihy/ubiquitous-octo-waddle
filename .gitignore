@@ -1,3 +1,7 @@
+*
+
+!*.*
+
 # Compiled Object files
 *.slo
 *.lo
@@ -28,8 +32,3 @@
 *.out
 *.app
 
-# Ignore all
-*
-
-# Unignore all with extensions
-!*.*
