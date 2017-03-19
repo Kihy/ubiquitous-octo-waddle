@@ -22,7 +22,10 @@ float cam=7;
 
 // Robot Controls
 float arm_angle=0;
-int shoulder=0, elbow=0;
+int shoulder=0, elbow=0, shoulderY=0;
+int knee_left=120,knee_right=145, pelvis=-120, pelvisZ=65;
+float body_pos_z=0;
+float pelvis_y=0;
 
 //--Draws a grid of lines on the floor plane -------------------------------
 void drawFloor()
@@ -42,56 +45,134 @@ void drawFloor()
 //--Draws a character model constructed using GLUT objects ------------------
 void drawModel()
 {
-	glColor3f(1., 0.78, 0.06);		//Head
+	//Head
+	glColor3f(1., 0.78, 0.06);		
 	glPushMatrix();
-	  glTranslatef(0, 7.7, 0);
-	  glutSolidCube(1.4);
-	glPopMatrix();
-
-	glColor3f(1., 0., 0.);			//Torso
-	glPushMatrix();
-	  glTranslatef(0, 5.5, 0);
-	  glScalef(3, 3, 1.4);
+	  glTranslatef(0, 7.5, body_pos_z);
 	  glutSolidCube(1);
 	glPopMatrix();
 
-	glColor3f(0., 0., 1.);			//Right leg
+	//Neck
+
 	glPushMatrix();
-	  glTranslatef(-0.8, 2.2, 0);
-	  glScalef(1, 4.4, 1);
-	  glutSolidCube(1);
+	  glTranslatef(0,6.75,body_pos_z);
+	  glutSolidCube(0.5);
 	glPopMatrix();
 
-	glColor3f(0., 0., 1.);			//Left leg
+    //Torso
+    glColor3f(0,0,1);
 	glPushMatrix();
-	  glTranslatef(0.8, 2.2, 0);
-	  glScalef(1, 4.4, 1);
-	  glutSolidCube(1);
-	glPopMatrix();
-
-	glColor3f(0., 0., 1.);			//Right arm
-	glPushMatrix();
-	  
-	  glTranslatef(-2,6.5,0);
-	  glRotatef(arm_angle,1,0,0);
-	  glTranslatef(2,-6.5,0);
-	  glTranslatef(-2, 5, 0);
-	  glScalef(1, 4, 1);
+	  glTranslatef(0, 5.75, body_pos_z);
+	  glScalef(1.5,1.5,1);
 	  glutSolidCube(1);
 	glPopMatrix();
 	
-	
-
-	glColor3f(0., 0., 1.);			//Left arm
+	//Pelvis
 	glPushMatrix();
-	  
-	  glTranslatef(-2,6.5,0);
-	  glRotatef(arm_angle,1,0,0);
-	  glTranslatef(2,-6.5,0);
-	  glTranslatef(-2, 5, 0);
-	  glScalef(1, 4, 1);
+	  glTranslatef(0,4.5,body_pos_z);
+	  glRotatef(pelvis_y,0,1,0);
+	  glScalef(1.5,1,1);
 	  glutSolidCube(1);
 	glPopMatrix();
+
+	//Right arm
+	glColor3f(1,0,0);
+	glPushMatrix();
+	  glTranslatef(0,0,body_pos_z);
+	  glTranslatef(-1,6.5,0);
+	  glRotatef(shoulderY,0,1,0);
+	  glRotatef(shoulder,1,0,0);
+	  glTranslatef(1,-6.5,0);
+	  glPushMatrix();
+		glTranslatef(-1,5.75,0);
+		glScalef(0.5,1.5,0.5);
+	    glutSolidCube(1);
+	  glPopMatrix();
+	 	 
+	  glTranslatef(-1,5,0);
+	  glRotatef(elbow,1,0,0);
+	  glTranslatef(1,-5,0);
+	  glPushMatrix();
+		glTranslatef(-1,4.25,0);
+		glScalef(0.5,1.5,0.5);
+	    glutSolidCube(1);
+	  glPopMatrix();
+	glPopMatrix();
+	
+	//Left arm
+	glPushMatrix();
+	  glTranslatef(0,0,body_pos_z);
+	  glTranslatef(1,6.5,0);
+	  glRotatef(shoulder,1,0,0);
+	  glTranslatef(-1,-6.5,0);
+	  glPushMatrix();
+		glTranslatef(1,5.75,0);
+		glScalef(0.5,1.5,0.5);
+	    glutSolidCube(1);
+	  glPopMatrix();
+	 	 
+	  glTranslatef(1,5,0);
+	  glRotatef(elbow,1,0,0);
+	  glTranslatef(-1,-5,0);
+	  glPushMatrix();
+		glTranslatef(1,4.25,0);
+		glScalef(0.5,1.5,0.5);
+	    glutSolidCube(1);
+	  glPopMatrix();
+	glPopMatrix();
+	
+	//Right leg
+	glColor3f(0,1,0);
+	glPushMatrix();
+	  glTranslatef(0,0,body_pos_z);
+	  glTranslatef(-0.5,4,0);
+	  glRotatef(pelvisZ,0,0,1);
+	  glRotatef(pelvis,1,0,0);
+	  glTranslatef(0.5,-4,0);
+
+	  glPushMatrix();
+	    
+		glTranslatef(-0.5,3,0);
+		glScalef(0.5,2,0.5);
+	    glutSolidCube(1);
+	  glPopMatrix();
+	 	 
+	  glTranslatef(-0.5,2,0);
+	  glRotatef(knee_right,1,0,0);
+	  glTranslatef(0.5,-2,0);
+	  glPushMatrix();
+		glTranslatef(-0.5,1,0);
+		glScalef(0.5,2,0.5);
+	    glutSolidCube(1);
+	  glPopMatrix();
+	glPopMatrix();
+
+	//Left leg
+	glPushMatrix();
+	  glTranslatef(0,0,body_pos_z);
+	  glTranslatef(0.5,4,0);
+	  glRotatef(-pelvisZ,0,0,1);
+	  glRotatef(pelvis,1,0,0);
+	  glTranslatef(-0.5,-4,0);
+	  
+	  glPushMatrix();
+
+		glTranslatef(0.5,3,0);
+		glScalef(0.5,2,0.5);
+	    glutSolidCube(1);
+	  glPopMatrix();
+	 	 
+	  glTranslatef(0.5,2,0);
+	  glRotatef(knee_left,1,0,0);
+	  glTranslatef(-0.5,-2,0);
+	  glPushMatrix();
+		glTranslatef(0.5,1,0);
+		glScalef(0.5,2,0.5);
+	    glutSolidCube(1);
+	  glPopMatrix();
+
+	glPopMatrix();
+	
 	
 }
 
@@ -142,7 +223,7 @@ void display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(	x, 7, z,
+	gluLookAt(	x, cam, z,
 			x+lx, cam,  z+lz,
 			0.0f, 1.0f,  0.0f);
 
@@ -153,8 +234,10 @@ void display()
     drawFloor();
 
 	glEnable(GL_LIGHTING);	       //Enable lighting when drawing the model
-
+	
+	glPushMatrix();
 	drawModel();
+	glPopMatrix();
 	drawHouse();
 	
 	glFlush();
@@ -213,10 +296,21 @@ void processSpecialKeys(int key, int xx, int yy) {
 	glutPostRedisplay();
 }
 
+float dx=0.05;
+float dtheta=1;
+float dpelvis=0.7;
 //  ------- Timer ----------------------------------------------------------
 void Timer(int value){
-    arm_angle += 1;
-    //shoulder+=1;
+	if (body_pos_z>=10)
+	dx=-dx;
+	if (body_pos_z<=-10)
+	dx=-dx;
+	
+	body_pos_z+=dx;
+	
+
+
+	
     glutPostRedisplay();
     glutTimerFunc(100, Timer, 100);
 }
