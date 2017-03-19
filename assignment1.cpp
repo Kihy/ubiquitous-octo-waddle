@@ -18,10 +18,11 @@ float lx=0.0f,lz=-1.0f;
 // XZ position of the camera
 float x=0.0f,z=10.0f;
 // camera height
-float cam=2.5;
+float cam=7;
 
 // Robot Controls
 float arm_angle=0;
+int shoulder=0, elbow=0;
 
 //--Draws a grid of lines on the floor plane -------------------------------
 void drawFloor()
@@ -71,28 +72,62 @@ void drawModel()
 	glColor3f(0., 0., 1.);			//Right arm
 	glPushMatrix();
 	  
-	  	  glTranslatef(-2,6.5,0);
+	  glTranslatef(-2,6.5,0);
 	  glRotatef(arm_angle,1,0,0);
 	  glTranslatef(2,-6.5,0);
 	  glTranslatef(-2, 5, 0);
 	  glScalef(1, 4, 1);
 	  glutSolidCube(1);
 	glPopMatrix();
+	
+	
 
 	glColor3f(0., 0., 1.);			//Left arm
 	glPushMatrix();
-	  glTranslatef(2, 5, 0);
+	  
+	  glTranslatef(-2,6.5,0);
+	  glRotatef(arm_angle,1,0,0);
+	  glTranslatef(2,-6.5,0);
+	  glTranslatef(-2, 5, 0);
 	  glScalef(1, 4, 1);
 	  glutSolidCube(1);
 	glPopMatrix();
+	
 }
 
 void drawHouse(){
-	//wall
+	int wall_height=15;
+	int house_width=100;
+	int house_length=50;
+	//North wall
 	glColor3f(0., 0., 0.);
 	glPushMatrix();
-	  glTranslatef(-100, 5, 0);
-	  glScalef(0.5, 10, 100);
+	  glTranslatef(0, wall_height/2, -house_length/2);
+	  glScalef(house_width, wall_height, 0.5);
+	  glutSolidCube(1);
+	glPopMatrix();
+	
+	//South wall
+		glColor3f(0., 0., 0.);
+	glPushMatrix();
+	  glTranslatef(0, wall_height/2, house_length/2);
+	  glScalef(house_width, wall_height, 0.5);
+	  glutSolidCube(1);
+	glPopMatrix();
+	
+	//West wall
+		glColor3f(0., 0., 0.);
+	glPushMatrix();
+	  glTranslatef(-house_width/2, wall_height/2, 0);
+	  glScalef(0.5, wall_height, house_length);
+	  glutSolidCube(1);
+	glPopMatrix();
+	
+		//East wall
+		glColor3f(0., 0., 0.);
+	glPushMatrix();
+	  glTranslatef(house_width/2, wall_height/2, 0);
+	  glScalef(0.5, wall_height, house_length);
 	  glutSolidCube(1);
 	glPopMatrix();
 	}
@@ -107,7 +142,7 @@ void display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(	x, cam, z,
+	gluLookAt(	x, 7, z,
 			x+lx, cam,  z+lz,
 			0.0f, 1.0f,  0.0f);
 
@@ -118,9 +153,10 @@ void display()
     drawFloor();
 
 	glEnable(GL_LIGHTING);	       //Enable lighting when drawing the model
-	drawHouse();
-	drawModel();
 
+	drawModel();
+	drawHouse();
+	
 	glFlush();
 }
 
@@ -144,16 +180,16 @@ void initialize()
 // To enable the use of left and right arrow keys to rotate the scene
 void processSpecialKeys(int key, int xx, int yy) {
 
-	float fraction = 0.1f;
+	float fraction = 1;
 
 	switch (key) {
 		case GLUT_KEY_LEFT :
-			angle -= 0.01f;
+			angle -= 0.1f;
 			lx = sin(angle);
 			lz = -cos(angle);
 			break;
 		case GLUT_KEY_RIGHT :
-			angle += 0.01f;
+			angle += 0.1f;
 			lx = sin(angle);
 			lz = -cos(angle);
 			break;
@@ -180,6 +216,7 @@ void processSpecialKeys(int key, int xx, int yy) {
 //  ------- Timer ----------------------------------------------------------
 void Timer(int value){
     arm_angle += 1;
+    //shoulder+=1;
     glutPostRedisplay();
     glutTimerFunc(100, Timer, 100);
 }
