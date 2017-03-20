@@ -22,10 +22,34 @@ float cam=7;
 
 // Robot Controls
 float arm_angle=0;
-int shoulder=0, elbow=0, shoulderY=0;
+int shoulder=-20, elbow=-60, shoulderY=0;
 int knee_left=120,knee_right=145, pelvis=-120, pelvisZ=65;
 float body_pos_z=0;
 float pelvis_y=0;
+
+// Box
+float box_pos=0;
+
+//Draws a cylinder
+void cylinder(float base_rad, float height){
+
+	glPushMatrix();
+		GLUquadricObj *cylinder;
+		cylinder = gluNewQuadric();
+		gluCylinder(cylinder,base_rad,base_rad,height,64,64);
+	glPopMatrix();
+	
+	glPushMatrix();
+		gluDisk(cylinder,0,base_rad,64,64);
+	glPopMatrix();
+	
+	glPushMatrix();
+		glTranslatef(0,0,height);
+		gluDisk(cylinder,0,base_rad,64,64);
+	glPopMatrix();
+	
+
+	}
 
 //--Draws a grid of lines on the floor plane -------------------------------
 void drawFloor()
@@ -42,8 +66,147 @@ void drawFloor()
 	}
 }
 
-//--Draws a character model constructed using GLUT objects ------------------
-void drawModel()
+//--Draws a robot------------------------------------------------------------
+void drawRobot()
+{
+	glColor3f(1,1,0);
+	//arm
+	glPushMatrix();
+	  glTranslatef(0,11,0);
+	  glRotatef(0,0,0,1);	  
+	  glTranslatef(0,-11,0);
+	  glPushMatrix();
+		glTranslatef(0,11,0);
+		glScalef(1,4,1);
+	    glutSolidCube(1);
+	  glPopMatrix();
+	 	 
+	  glTranslatef(0,5,0);
+	  glRotatef(0,0,0,1);
+	  glTranslatef(0,-5,0);
+	  glPushMatrix();
+		glTranslatef(0,7,0);
+		glScalef(2,4,2);
+	    glutSolidCube(1);
+	  glPopMatrix();
+	glPopMatrix();
+	
+	
+	//wheels
+	glPushMatrix();
+		glTranslatef(2,1,2);
+		cylinder(1,0.5);
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-2,1,2);
+		cylinder(1,0.5);
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(2,1,-2.5);
+		cylinder(1,0.5);
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(-2,1,-2.5);
+		cylinder(1,0.5);
+	glPopMatrix();
+	
+	//body
+	glPushMatrix();
+		glTranslatef(0,3,0);
+		glScalef(4,4,4);
+		glutSolidCube(1);
+	glPopMatrix();
+ 
+    }
+    
+//--Draws a transmission belt -----------------------------------------------
+void drawBelt(float rad, float height, float length, int hide=0){
+	if(!hide){
+	glPushMatrix();
+		glTranslatef(0,2,-0.25);
+		glScalef(0.5,4,0.5);
+		glutSolidCube(1);
+	glPopMatrix();
+	
+	glPushMatrix();
+		glTranslatef(0,2,height+0.25);
+		glScalef(0.5,4,0.5);
+		glutSolidCube(1);
+	glPopMatrix();
+}
+	glPushMatrix();
+		glTranslatef(length,2,-0.25);
+		glScalef(0.5,4,0.5);
+		glutSolidCube(1);
+	glPopMatrix();
+	
+	glPushMatrix();
+		glTranslatef(length,2,height+0.25);
+		glScalef(0.5,4,0.5);
+		glutSolidCube(1);
+	glPopMatrix();
+	
+	glTranslatef(0,4,0);
+		
+	glPushMatrix();
+		glTranslatef(length/2,rad,height/2);
+		glScalef(length,0,height);
+		glutSolidCube(1);
+	glPopMatrix();
+	
+	glPushMatrix();
+		cylinder(rad,height);
+		glTranslatef(length,0,0);
+		cylinder(rad,height);
+	glPopMatrix();
+	
+	glPushMatrix();
+		glTranslatef(length/2,-rad,height/2);
+		glScalef(length,0,height);
+		glutSolidCube(1);
+	glPopMatrix();
+	}
+
+//--Draws a production machine
+void drawMachine()
+{
+	glColor3f(1,0,0);
+	glPushMatrix();
+		glTranslatef(-2,2,-2);
+		glScalef(1,4,1);
+		glutSolidCube(1);
+	glPopMatrix();
+		
+	glPushMatrix();
+		glTranslatef(2,2,-2);
+		glScalef(1,4,1);
+		glutSolidCube(1);
+	glPopMatrix();
+		
+	
+	glPushMatrix();
+		glTranslatef(-2,2,2);
+		glScalef(1,4,1);
+		glutSolidCube(1);
+	glPopMatrix();
+	
+	
+	glPushMatrix();
+		glTranslatef(2,2,2);
+		glScalef(1,4,1);
+		glutSolidCube(1);
+	glPopMatrix();
+	
+	//main body
+	glPushMatrix();
+		glTranslatef(0,6,0);
+		glScalef(5,7,5);
+		glutSolidCube(1);
+	glPopMatrix();
+	}
+
+//--Draws a buddha model constructed using GLUT objects ------------------
+void drawBuddha()
 {
 	//Head
 	glColor3f(1., 0.78, 0.06);		
@@ -80,8 +243,8 @@ void drawModel()
 	glPushMatrix();
 	  glTranslatef(0,0,body_pos_z);
 	  glTranslatef(-1,6.5,0);
-	  glRotatef(shoulderY,0,1,0);
-	  glRotatef(shoulder,1,0,0);
+
+	  glRotatef(shoulder,1,0,0);	  
 	  glTranslatef(1,-6.5,0);
 	  glPushMatrix();
 		glTranslatef(-1,5.75,0);
@@ -102,7 +265,8 @@ void drawModel()
 	//Left arm
 	glPushMatrix();
 	  glTranslatef(0,0,body_pos_z);
-	  glTranslatef(1,6.5,0);
+	  glTranslatef(1,6.5,0);  
+
 	  glRotatef(shoulder,1,0,0);
 	  glTranslatef(-1,-6.5,0);
 	  glPushMatrix();
@@ -176,7 +340,7 @@ void drawModel()
 	
 }
 
-void drawHouse(){
+void drawFactory(){
 	int wall_height=15;
 	int house_width=100;
 	int house_length=50;
@@ -204,14 +368,36 @@ void drawHouse(){
 	  glutSolidCube(1);
 	glPopMatrix();
 	
-		//East wall
+	//East wall
 		glColor3f(0., 0., 0.);
 	glPushMatrix();
 	  glTranslatef(house_width/2, wall_height/2, 0);
 	  glScalef(0.5, wall_height, house_length);
 	  glutSolidCube(1);
 	glPopMatrix();
+	
+	//Transmission belt
+	glColor3f(0, 0, 1);
+	glPushMatrix();
+		glTranslatef(-40,0,0);
+		drawBelt(1,4,20,1);
+	glPopMatrix();
+	
+	//draw production machine
+	glPushMatrix();
+		glTranslatef(-40,0,2);
+		drawMachine();
+	glPopMatrix();
+	
+	//draw boxes
+	glPushMatrix();
+		glTranslatef(box_pos,0,0);
+		glTranslatef(-40,6,2);
+		glutSolidCube(2);
+	glPopMatrix();
 	}
+
+
 
 //--Display: ---------------------------------------------------------------
 //--This is the main display module containing function calls for generating
@@ -236,9 +422,14 @@ void display()
 	glEnable(GL_LIGHTING);	       //Enable lighting when drawing the model
 	
 	glPushMatrix();
-	drawModel();
+	glTranslatef(0,1000,0);
+		drawBuddha();
 	glPopMatrix();
-	drawHouse();
+	
+	drawFactory();
+	
+	
+	drawRobot();
 	
 	glFlush();
 }
@@ -296,21 +487,15 @@ void processSpecialKeys(int key, int xx, int yy) {
 	glutPostRedisplay();
 }
 
-float dx=0.05;
+float dx=0.1;
 float dtheta=1;
 float dpelvis=0.7;
 //  ------- Timer ----------------------------------------------------------
 void Timer(int value){
-	if (body_pos_z>=10)
-	dx=-dx;
-	if (body_pos_z<=-10)
-	dx=-dx;
-	
-	body_pos_z+=dx;
-	
+	if(box_pos<19){
+	box_pos+=dx;
+	}
 
-
-	
     glutPostRedisplay();
     glutTimerFunc(100, Timer, 100);
 }
