@@ -65,30 +65,77 @@ void drawFloor()
 		glEnd();
 	}
 }
-
+float robot_arm_angle=0;
+float robot_joint_angle=0;
+float claw_angle=63;
 //--Draws a robot------------------------------------------------------------
 void drawRobot()
 {
 	glColor3f(1,1,0);
+
+	
+	
 	//arm
 	glPushMatrix();
-	  glTranslatef(0,11,0);
-	  glRotatef(0,0,0,1);	  
-	  glTranslatef(0,-11,0);
-	  glPushMatrix();
-		glTranslatef(0,11,0);
-		glScalef(1,4,1);
-	    glutSolidCube(1);
-	  glPopMatrix();
-	 	 
 	  glTranslatef(0,5,0);
-	  glRotatef(0,0,0,1);
+	  glRotatef(robot_joint_angle,0,0,1);
 	  glTranslatef(0,-5,0);
 	  glPushMatrix();
-		glTranslatef(0,7,0);
-		glScalef(2,4,2);
+		glTranslatef(0,9,0);
+		glScalef(1,8,1);
 	    glutSolidCube(1);
 	  glPopMatrix();
+	
+	  glTranslatef(0,13,0);
+	  glRotatef(robot_arm_angle,0,0,1);	  
+	  glTranslatef(0,-13,0);
+	  glPushMatrix();
+		glTranslatef(0,16,0);
+		glScalef(1,6,1);
+	    glutSolidCube(1);
+	  glPopMatrix();
+
+	//claws
+	glPushMatrix();
+	  glTranslatef(0,19,-0.25);
+	  glRotatef(-claw_angle,1,0,0);	  
+	  glTranslatef(0,-19,0.25);
+	  glPushMatrix();
+		glTranslatef(0,20,-0.25);
+		glScalef(0.25,2,0.25);
+	    glutSolidCube(1);
+	  glPopMatrix();
+	  
+	  glTranslatef(0,21,-0.25);
+	  glRotatef(90,1,0,0);
+	  glTranslatef(0,-21,0.25);
+	  glPushMatrix();
+		glTranslatef(0,22,-0.25);
+		glScalef(0.25,2,0.25);
+	    glutSolidCube(1);
+	  glPopMatrix();
+	glPopMatrix();
+	
+	glPushMatrix();
+	  glTranslatef(0,19,0.25);
+	  glRotatef(claw_angle,1,0,0);	  
+	  glTranslatef(0,-19,-0.25);
+	  glPushMatrix();
+		glTranslatef(0,20,0.25);
+		glScalef(0.25,2,0.25);
+	    glutSolidCube(1);
+	  glPopMatrix();
+	  
+	  glTranslatef(0,21,0.25);
+	  glRotatef(-90,1,0,0);
+	  glTranslatef(0,-21,-0.25);
+	  glPushMatrix();
+		glTranslatef(0,22,0.25);
+		glScalef(0.25,2,0.25);
+	    glutSolidCube(1);
+	  glPopMatrix();
+	glPopMatrix();
+
 	glPopMatrix();
 	
 	
@@ -389,16 +436,11 @@ void drawFactory(){
 		drawMachine();
 	glPopMatrix();
 	
-	//draw boxes
-	glPushMatrix();
-		glTranslatef(box_pos,0,0);
-		glTranslatef(-40,6,2);
-		glutSolidCube(2);
-	glPopMatrix();
+
 	}
 
 
-
+float robot_pos=0;
 //--Display: ---------------------------------------------------------------
 //--This is the main display module containing function calls for generating
 //--the scene.
@@ -428,8 +470,18 @@ void display()
 	
 	drawFactory();
 	
+	//draw boxes
+	glPushMatrix();
+		glTranslatef(box_pos,0,0);
+		glTranslatef(-40,6,2);
+		glutSolidCube(2);
+	glPopMatrix();
 	
-	drawRobot();
+	glPushMatrix();
+		glTranslatef(-robot_pos,0,0);
+		glTranslatef(-10,0,2);
+		drawRobot();
+	glPopMatrix();
 	
 	glFlush();
 }
@@ -487,7 +539,7 @@ void processSpecialKeys(int key, int xx, int yy) {
 	glutPostRedisplay();
 }
 
-float dx=0.1;
+float dx=19;
 float dtheta=1;
 float dpelvis=0.7;
 //  ------- Timer ----------------------------------------------------------
@@ -495,6 +547,11 @@ void Timer(int value){
 	if(box_pos<19){
 	box_pos+=dx;
 	}
+//	if (robot_pos<5){
+	//	robot_pos+=dx;
+		//}
+	robot_arm_angle=100;
+	robot_joint_angle=35;
 
     glutPostRedisplay();
     glutTimerFunc(100, Timer, 100);
