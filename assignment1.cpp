@@ -67,7 +67,8 @@ void drawFloor()
 }
 float robot_arm_angle=0;
 float robot_joint_angle=0;
-float claw_angle=63;
+float robot_arm_y=0;
+float claw_angle=80;
 //--Draws a robot------------------------------------------------------------
 void drawRobot()
 {
@@ -78,6 +79,7 @@ void drawRobot()
 	//arm
 	glPushMatrix();
 	  glTranslatef(0,5,0);
+	  glRotatef(robot_arm_y,0,1,0);
 	  glRotatef(robot_joint_angle,0,0,1);
 	  glTranslatef(0,-5,0);
 	  glPushMatrix();
@@ -472,6 +474,9 @@ void display()
 	
 	//draw boxes
 	glPushMatrix();
+		glTranslatef(-10,5,2);
+		glRotatef(robot_arm_y,0,1,0);
+		glTranslatef(10,-5,-2);
 		glTranslatef(box_pos,0,0);
 		glTranslatef(-40,6,2);
 		glutSolidCube(2);
@@ -539,21 +544,36 @@ void processSpecialKeys(int key, int xx, int yy) {
 	glutPostRedisplay();
 }
 
-float dx=19;
+float dx=0.1;
 float dtheta=1;
 float dpelvis=0.7;
 //  ------- Timer ----------------------------------------------------------
-void Timer(int value){
+void stage1(){
 	if(box_pos<19){
 	box_pos+=dx;
 	}
-//	if (robot_pos<5){
-	//	robot_pos+=dx;
-		//}
-	robot_arm_angle=100;
-	robot_joint_angle=35;
+	if(robot_arm_angle<97){robot_arm_angle+=dtheta;}
+	if(robot_arm_angle<35){robot_joint_angle+=dtheta;}
+	
+	}
+void stage2(){
+	if (claw_angle>63){
+		claw_angle-=dtheta;
+		}
+	else{
+	robot_arm_y+=dtheta;
+}
 
-    glutPostRedisplay();
+	}
+void Timer(int value){
+	if(box_pos<19){
+		stage1();
+	}
+	else{
+		stage2();
+		}
+	
+	    glutPostRedisplay();
     glutTimerFunc(100, Timer, 100);
 }
 
