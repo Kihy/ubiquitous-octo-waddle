@@ -4,9 +4,105 @@
  
 #include <iostream>
 #include <fstream>
+#include <climits>
 #include <cmath> 
 #include <GL/freeglut.h>
 using namespace std;
+
+//--Globals ---------------------------------------------------------------
+float *x, *y, *z;  //vertex coordinate arrays
+int *t1, *t2, *t3; //triangles
+int nvrt, ntri;    //total number of vertices and triangles
+float cam_hgt = 1; //Camera height
+float xmin, xmax, ymin, ymax; //min, max values of  object coordinates
+
+//-- Loads mesh data in OFF format    -------------------------------------
+void loadMeshFile(const char* fname)  
+{
+	ifstream fp_in;
+	int num, ne;
+
+	fp_in.open(fname, ios::in);
+	if(!fp_in.is_open())
+	{
+		cout << "Error opening mesh file" << endl;
+		exit(1);
+	}
+
+	fp_in.ignore(INT_MAX, '\n');				//ignore first line
+	fp_in >> nvrt >> ntri >> ne;			    // read number of vertices, polygons, edges
+
+    x = new float[nvrt];                        //create arrays
+    y = new float[nvrt];
+    z = new float[nvrt];
+
+    t1 = new int[ntri];
+    t2 = new int[ntri];
+    t3 = new int[ntri];
+
+	for(int i=0; i < nvrt; i++)                         //read vertex list 
+		fp_in >> x[i] >> y[i] >> z[i];
+
+	for(int i=0; i < ntri; i++)                         //read polygon list 
+	{
+		fp_in >> num >> t1[i] >> t2[i] >> t3[i];
+		if(num != 3)
+		{
+			cout << "ERROR: Polygon with index " << i  << " is not a triangle." << endl;  //not a triangle!!
+			exit(1);
+		}
+	}
+
+	fp_in.close();
+	cout << " File successfully read." << endl;
+}
+
+//-- Computes the min, max values of coordinates  -----------------------
+void computeMinMax()
+{
+	xmin = xmax = x[0];
+	ymin = ymax = y[0];
+	for(int i = 1; i < nvrt; i++)
+	{
+		if(x[i] < xmin) xmin = x[i];
+		else if(x[i] > xmax) xmax = x[i];
+		if(y[i] < ymin) ymin = y[i];
+		else if(y[i] > ymax) ymax = y[i];
+	}
+}
+
+//--Function to compute the normal vector of a triangle with index tindx ----------
+void normal(int tindx)
+{
+	float x1 = x[t1[tindx]], x2 = x[t2[tindx]], x3 = x[t3[tindx]];
+	float y1 = y[t1[tindx]], y2 = y[t2[tindx]], y3 = y[t3[tindx]];
+	float z1 = z[t1[tindx]], z2 = z[t2[tindx]], z3 = z[t3[tindx]];
+	float nx, ny, nz;
+	nx = y1*(z2-z3) + y2*(z3-z1) + y3*(z1-z2);
+	ny = z1*(x2-x3) + z2*(x3-x1) + z3*(x1-x2);
+	nz = x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2);
+	glNormal3f(nx, ny, nz);
+}
+
+//--Display: ----------------------------------------------------------------------
+//--This is the main display module containing function calls for generating
+//--the scene.
+void displayBunny()  
+{
+	glColor3f(230/255.0, 228/255.0, 216/255.0);
+
+    //Construct the object model here using GL primitives
+	glBegin(GL_TRIANGLES);
+		for(int tindx = 0; tindx < ntri; tindx++)
+		{
+		   normal(tindx);
+		   glVertex3d(x[t1[tindx]], y[t1[tindx]], z[t1[tindx]]);
+		   glVertex3d(x[t2[tindx]], y[t2[tindx]], z[t2[tindx]]);
+		   glVertex3d(x[t3[tindx]], y[t3[tindx]], z[t3[tindx]]);
+		}
+	glEnd();
+
+}
 
 //--Globals ---------------------------------------------------------------
 
@@ -16,7 +112,7 @@ float angle=0.0;
 // actual vector representing the camera's direction
 float lx=0.0f,lz=-1.0f;
 // XZ position of the camera
-float x=0.0f,z=10.0f;
+float xcam=0.0f,zcam=10.0f;
 // camera height
 float cam=7;
 
@@ -390,11 +486,11 @@ void drawBuddha()
 }
 
 void drawFactory(){
-	int wall_height=15;
+	int wall_height=20;
 	int house_width=100;
 	int house_length=50;
 	//North wall
-	glColor3f(0., 0., 0.);
+	glColor3f(299/255,299/255.0, 299/255.0);
 	glPushMatrix();
 	  glTranslatef(0, wall_height/2, -house_length/2);
 	  glScalef(house_width, wall_height, 0.5);
@@ -402,7 +498,7 @@ void drawFactory(){
 	glPopMatrix();
 	
 	//South wall
-		glColor3f(0., 0., 0.);
+
 	glPushMatrix();
 	  glTranslatef(0, wall_height/2, house_length/2);
 	  glScalef(house_width, wall_height, 0.5);
@@ -410,7 +506,6 @@ void drawFactory(){
 	glPopMatrix();
 	
 	//West wall
-		glColor3f(0., 0., 0.);
 	glPushMatrix();
 	  glTranslatef(-house_width/2, wall_height/2, 0);
 	  glScalef(0.5, wall_height, house_length);
@@ -418,12 +513,19 @@ void drawFactory(){
 	glPopMatrix();
 	
 	//East wall
-		glColor3f(0., 0., 0.);
 	glPushMatrix();
 	  glTranslatef(house_width/2, wall_height/2, 0);
 	  glScalef(0.5, wall_height, house_length);
 	  glutSolidCube(1);
 	glPopMatrix();
+	
+	//draw ceiling
+	glPushMatrix();
+	  glTranslatef(0, wall_height, 0);
+	  glScalef(house_width, 0.5, house_length);
+	  glutSolidCube(1);
+	glPopMatrix();
+	
 	
 	//Transmission belt
 	glColor3f(0, 0, 1);
@@ -432,17 +534,39 @@ void drawFactory(){
 		drawBelt(1,4,20,1);
 	glPopMatrix();
 	
+	glPushMatrix();
+		glTranslatef(5,0,0);
+		drawBelt(1,4,30,0);
+	glPopMatrix();
+	
+	
 	//draw production machine
 	glPushMatrix();
 		glTranslatef(-40,0,2);
 		drawMachine();
 	glPopMatrix();
 	
+	//draw transformation machine
+	glPushMatrix();
+		glTranslatef(20,0,2);
+		drawMachine();
+	glPopMatrix();
+	
+	//big vacuum
+	glPushMatrix();
+		glTranslatef(43,20,2);
+		glRotatef(90,1,0,0);
+		cylinder(2,5);
+	glPopMatrix();
 
 	}
 
 
 float robot_pos=0;
+float box_pos_stage_2=0;
+float teapot_pos=0;
+float box_y=0;
+float bunny_pos_y=0;
 //--Display: ---------------------------------------------------------------
 //--This is the main display module containing function calls for generating
 //--the scene.
@@ -453,8 +577,8 @@ void display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(	x, cam, z,
-			x+lx, cam,  z+lz,
+	gluLookAt(	xcam, cam, zcam,
+			xcam+lx, cam,  zcam+lz,
 			0.0f, 1.0f,  0.0f);
 
 	glLightfv(GL_LIGHT0,GL_POSITION, lpos);   //Set light position
@@ -473,13 +597,23 @@ void display()
 	drawFactory();
 	
 	//draw boxes
+	glColor3f(230/255.0, 228/255.0, 216/255.0);
 	glPushMatrix();
+		glTranslatef(box_pos_stage_2,0,0);
 		glTranslatef(-10,5,2);
-		glRotatef(robot_arm_y,0,1,0);
+		glRotatef(box_y,0,1,0);
 		glTranslatef(10,-5,-2);
 		glTranslatef(box_pos,0,0);
 		glTranslatef(-40,6,2);
 		glutSolidCube(2);
+	glPopMatrix();
+	
+	//draw bunny
+	glPushMatrix();
+		glTranslatef(teapot_pos,bunny_pos_y,0);
+		glTranslatef(20,4.5,2);
+		glScalef(15,15,15);
+		displayBunny();
 	glPopMatrix();
 	
 	glPushMatrix();
@@ -494,6 +628,7 @@ void display()
 //------- Initialize OpenGL parameters -----------------------------------
 void initialize()
 {
+	loadMeshFile("195.off");
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);	//Background colour
 
 	glEnable(GL_LIGHTING);					//Enable OpenGL states
@@ -525,12 +660,12 @@ void processSpecialKeys(int key, int xx, int yy) {
 			lz = -cos(angle);
 			break;
 		case GLUT_KEY_UP :
-			x += lx * fraction;
-			z += lz * fraction;
+			xcam += lx * fraction;
+			zcam += lz * fraction;
 			break;
 		case GLUT_KEY_DOWN :
-			x -= lx * fraction;
-			z -= lz * fraction;
+			xcam -= lx * fraction;
+			zcam -= lz * fraction;
 			break;
 			
 		case GLUT_KEY_PAGE_UP:
@@ -544,16 +679,26 @@ void processSpecialKeys(int key, int xx, int yy) {
 	glutPostRedisplay();
 }
 
-float dx=0.1;
-float dtheta=1;
+float dx=0.5;
+float dtheta=10;
 float dpelvis=0.7;
+int stage=1;
+float suction=8;
+float Vvelocity=0;
 //  ------- Timer ----------------------------------------------------------
 void stage1(){
 	if(box_pos<19){
 	box_pos+=dx;
 	}
-	if(robot_arm_angle<97){robot_arm_angle+=dtheta;}
-	if(robot_arm_angle<35){robot_joint_angle+=dtheta;}
+	if(robot_arm_angle<97){
+		robot_arm_angle+=dtheta;
+		}
+	if(robot_arm_angle<35){
+		robot_joint_angle+=dtheta;
+		}
+	if(box_pos==19){
+		stage=2;
+		}
 	
 	}
 void stage2(){
@@ -561,20 +706,79 @@ void stage2(){
 		claw_angle-=dtheta;
 		}
 	else{
+	if(robot_arm_y<180){
 	robot_arm_y+=dtheta;
+	box_y=robot_arm_y;
+	}
+	else{
+		if(robot_pos>-5){
+			robot_pos-=dx;
+			box_pos_stage_2+=dx;
+			}else{
+				stage=3;}
+		}
 }
 
 	}
-void Timer(int value){
-	if(box_pos<19){
-		stage1();
-	}
-	else{
-		stage2();
+void stage3(int value){
+
+	if(claw_angle<80){
+					claw_angle+=dtheta;
+					}else{
+	//reverse robot
+	if(robot_pos<0){
+		robot_pos+=dx;
 		}
+	if(robot_arm_y>0){
+		robot_arm_y-=dtheta;
+		}
+		//done reverse
+		if (box_pos_stage_2<19){
+			box_pos_stage_2+=dx;
+				}else{
+					if (teapot_pos<24){
+		teapot_pos+=dx;
+		if(teapot_pos>16 && bunny_pos_y<15){
+				Vvelocity+=suction*value/1000;
+				bunny_pos_y+=Vvelocity*value/1000;
+				
+		}
+		}else{
+			stage=4;
+			}
+		}
+		}
+			
+
+	}
+void resetObj(){
+	box_pos=0;
+	box_pos_stage_2=0;
+	box_y=0;
+	Vvelocity=0;
+	bunny_pos_y=0;
+	teapot_pos=0;
+	stage=1;
+	
+	}
+void Timer(int value){
+	switch(stage){
+	case 1:
+	stage1();
+	break;
+	case 2:
+	stage2();
+	break;
+	case 3:
+	stage3(value);
+	break;
+	case 4:
+	resetObj();
+	break;
+	}
 	
 	    glutPostRedisplay();
-    glutTimerFunc(100, Timer, 100);
+    glutTimerFunc(100, Timer, value);
 }
 
 //  ------- Main: Initialize glut window and register call backs -----------
