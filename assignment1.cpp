@@ -112,7 +112,7 @@ float angle=0.0;
 // actual vector representing the camera's direction
 float lx=0.0f,lz=-1.0f;
 // XZ position of the camera
-float xcam=0.0f,zcam=10.0f;
+float xcam=-25,zcam=25.0f;
 // camera height
 float cam=7;
 
@@ -560,6 +560,49 @@ void drawFactory(){
 	glPopMatrix();
 
 	}
+int second=7887;
+int minute=0;
+int hour=0;
+//--Draws a clock ---------------------------------------------------------
+void drawClock(){
+	glPushMatrix();
+			glColor3f(0,0,0);
+	//hours
+		glPushMatrix();
+			glRotatef(hour,0,0,1);
+			glTranslatef(0,0.75,0);
+			glScalef(0.4,1.5,0.1);
+			glutSolidCube(1);
+		glPopMatrix();
+		
+		//minutes
+		glPushMatrix();
+			glRotatef(minute,0,0,1);
+			glTranslatef(0,1.1,0);
+			glScalef(0.2,2.2,0.2);
+			glutSolidCube(1);
+		glPopMatrix();
+		
+		//seconds
+		glPushMatrix();
+			glRotatef(second,0,0,1);
+			glTranslatef(0,1.1,0);
+			glScalef(0.1,2.2,0.1);
+			glutSolidCube(1);
+		glPopMatrix();
+		
+		glColor3f(1,1,1);
+		GLUquadricObj *clock;
+		clock = gluNewQuadric();
+		gluDisk(clock,0,2.5,64,64);
+		glColor3f(0,0,0);
+		glTranslatef(0,0,-0.51);
+		cylinder(2.6,0.5);
+		
+		
+	glPopMatrix();
+	
+	}
 
 
 float robot_pos=0;
@@ -620,6 +663,12 @@ void display()
 		glTranslatef(-robot_pos,0,0);
 		glTranslatef(-10,0,2);
 		drawRobot();
+	glPopMatrix();
+	
+	//draw clock in factory
+	glPushMatrix();
+		glTranslatef(0,15,-24.25);
+		drawClock();
 	glPopMatrix();
 	
 	glFlush();
@@ -759,9 +808,12 @@ void resetObj(){
 	bunny_pos_y=0;
 	teapot_pos=0;
 	stage=1;
-	
 	}
 void Timer(int value){
+	second-=6;
+	minute=second/60;
+	hour=minute/60;
+	
 	switch(stage){
 	case 1:
 	stage1();
