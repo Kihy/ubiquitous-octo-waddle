@@ -126,22 +126,23 @@ float pelvis_y=0;
 // Box
 float box_pos=0;
 
+GLUquadricObj *q;
+
 //Draws a cylinder
 void cylinder(float base_rad, float height){
 
 	glPushMatrix();
-		GLUquadricObj *cylinder;
-		cylinder = gluNewQuadric();
-		gluCylinder(cylinder,base_rad,base_rad,height,64,64);
+		q = gluNewQuadric();
+		gluCylinder(q,base_rad,base_rad,height,64,64);
 	glPopMatrix();
 	
 	glPushMatrix();
-		gluDisk(cylinder,0,base_rad,64,64);
+		gluDisk(q,0,base_rad,64,64);
 	glPopMatrix();
 	
 	glPushMatrix();
 		glTranslatef(0,0,height);
-		gluDisk(cylinder,0,base_rad,64,64);
+		gluDisk(q,0,base_rad,64,64);
 	glPopMatrix();
 	
 
@@ -150,16 +151,20 @@ void cylinder(float base_rad, float height){
 //--Draws a grid of lines on the floor plane -------------------------------
 void drawFloor()
 {
-	glColor3f(0., 0.5, 0.);			//Floor colour
-	for(float i = -50; i <= 50; i ++)
+	glColor3f(0., 0., 0.);			//Floor colour
+	
+glBegin(GL_QUADS);
+	for(float i = -50; i < 50; i+=0.1)
 	{
-		glBegin(GL_LINES);			//A set of grid lines on the xz-plane
-			glVertex3f(-50, 0, i);
-			glVertex3f(50, 0, i);
-			glVertex3f(i, 0, -50);
-			glVertex3f(i, 0, 50);
-		glEnd();
+		for(float j = -25;  j < 25; j+=0.1)
+		{
+			glVertex3f(i, 0.0, j);
+			glVertex3f(i, 0.0, j+0.1);
+			glVertex3f(i+0.1, 0.0, j+0.1);
+			glVertex3f(i+0.1, 0.0, j);
+		}
 	}
+	glEnd();
 }
 float robot_arm_angle=0;
 float robot_joint_angle=0;
@@ -484,13 +489,15 @@ void drawBuddha()
 	
 	
 }
-
+float white[4]={1,1,1,1,};
 void drawFactory(){
 	int wall_height=20;
 	int house_width=100;
 	int house_length=50;
+	
 	//North wall
 	glColor3f(299/255,299/255.0, 299/255.0);
+
 	glPushMatrix();
 	  glTranslatef(0, wall_height/2, -house_length/2);
 	  glScalef(house_width, wall_height, 0.5);
@@ -526,6 +533,7 @@ void drawFactory(){
 	  glutSolidCube(1);
 	glPopMatrix();
 	
+
 	
 	//Transmission belt
 	glColor3f(0, 0, 1);
@@ -551,7 +559,9 @@ void drawFactory(){
 		glTranslatef(20,0,2);
 		drawMachine();
 	glPopMatrix();
-	
+			
+			
+			
 	//big vacuum
 	glPushMatrix();
 		glTranslatef(43,20,2);
@@ -592,9 +602,9 @@ void drawClock(){
 		glPopMatrix();
 		
 		glColor3f(1,1,1);
-		GLUquadricObj *clock;
-		clock = gluNewQuadric();
-		gluDisk(clock,0,2.5,64,64);
+		
+		q = gluNewQuadric();
+		gluDisk(q,0,2.5,64,64);
 		glColor3f(0,0,0);
 		glTranslatef(0,0,-0.51);
 		cylinder(2.6,0.5);
@@ -615,8 +625,10 @@ float bunny_pos_y=0;
 //--the scene.
 void display()  
 {
-	float lpos[4] = {10., 10., 10., 1.0};  //light's position
-
+	float lpos[4] = {0, 18., 0., 1.0};  //light's position
+	float spot_pos[] = {-40, 20, 3, 1.0}; 
+	float spotdir[]={0, -1.0, 0};
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -625,19 +637,27 @@ void display()
 			0.0f, 1.0f,  0.0f);
 
 	glLightfv(GL_LIGHT0,GL_POSITION, lpos);   //Set light position
+	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spotdir);
 
-
-	glDisable(GL_LIGHTING);			//Disable lighting when drawing floor.
+	
     drawFloor();
-
-	glEnable(GL_LIGHTING);	       //Enable lighting when drawing the model
 	
 	glPushMatrix();
 	glTranslatef(0,1000,0);
 		drawBuddha();
 	glPopMatrix();
+
 	
 	drawFactory();
+	glPushMatrix();
+		glTranslatef(teapot_pos,bunny_pos_y,0);
+		glTranslatef(box_pos_stage_2,0,0);
+		glTranslatef(-10,5,2);
+		glRotatef(box_y,0,1,0);
+		glTranslatef(10,-5,-2);
+		glTranslatef(box_pos,0,0);
+		glLightfv(GL_LIGHT1, GL_POSITION, spot_pos);
+	glPopMatrix();
 	
 	//draw boxes
 	glColor3f(230/255.0, 228/255.0, 216/255.0);
@@ -677,17 +697,36 @@ void display()
 //------- Initialize OpenGL parameters -----------------------------------
 void initialize()
 {
+	float grey[4] = {0.2, 0.2, 0.2, 1.0};
+	
 	loadMeshFile("195.off");
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);	//Background colour
 
 	glEnable(GL_LIGHTING);					//Enable OpenGL states
-	glEnable(GL_LIGHT0);
+	//glEnable(GL_LIGHT0);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, grey);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, white);
+    
+    glEnable(GL_LIGHT1);
+    
+    glLightfv(GL_LIGHT1, GL_AMBIENT, grey);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, white);
+    glLightfv(GL_LIGHT1, GL_SPECULAR, white);    
+	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 30);
+	glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 0.01);
+    
+	
+	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
  	glEnable(GL_COLOR_MATERIAL);
+ 	glMaterialfv(GL_FRONT, GL_SPECULAR, white);
+	glMaterialf(GL_FRONT, GL_SHININESS, 10);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_NORMALIZE);
- 
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
+	
+	
 	glFrustum(-5.0, 5.0, -5.0, 5.0, 5.0, 1000.0);   //Camera Frustum
 }
 
@@ -840,7 +879,7 @@ int main(int argc, char** argv)
    glutInitDisplayMode (GLUT_SINGLE | GLUT_DEPTH);
    glutInitWindowSize (600, 600); 
    glutInitWindowPosition (10, 10);
-   glutCreateWindow ("Humanoid");
+   glutCreateWindow ("Factory");
    initialize();
 
    glutDisplayFunc(display);
