@@ -7,13 +7,14 @@
 #include <climits>
 #include <cmath> 
 #include <GL/freeglut.h>
+#include <GL/glut.h>
 #include "loadTGA.h"
 using namespace std;
-GLuint txId[2];   //Texture ids
+GLuint txId[3];   //Texture ids
 
 void loadTexture()				
 {
-	glGenTextures(2, txId); 	// Create 2 texture ids
+	glGenTextures(3, txId); 	// Create 2 texture ids
 
 	glBindTexture(GL_TEXTURE_2D, txId[0]);  //Use this texture
     loadTGA("wall.tga");
@@ -22,6 +23,11 @@ void loadTexture()
 
 	glBindTexture(GL_TEXTURE_2D, txId[1]);  //Use this texture
     loadTGA("floor.tga");
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);	//Set texture parameters
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);	
+	
+	glBindTexture(GL_TEXTURE_2D, txId[2]);  //Use this texture
+    loadTGA("ceiling.tga");
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);	//Set texture parameters
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);	
 		cout << " File successfully read." << endl;
@@ -170,23 +176,23 @@ void cylinder(float base_rad, float height){
 
 //--Draws a grid of lines on the floor plane -------------------------------
 void drawFloor()
-{
-	glColor3f(1,1,1);			//Floor colour
+{	glColor3f(0.2,0.2,0.2);	
 	glNormal3f(0,1,0);
-	glBegin(GL_QUADS);
+	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, txId[1]);  //Use this texture
-	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
-	for(int i = -50; i < 50; i++)
-	{
-		for(int j = -25;  j < 25; j++)
-		{
-			glTexCoord2f(1,0);glVertex3f(i, 0.0, j);
-			glTexCoord2f(1,1);glVertex3f(i, 0.0, j++);
-			glTexCoord2f(0,1);glVertex3f(i++, 0.0, j++);
-			glTexCoord2f(0,0);glVertex3f(i++, 0.0, j);
+
+	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+		glBegin(GL_QUADS);
+			for(int i=-50;i<50;i++){
+				for(int j=-25;j<25;j++){
+			glTexCoord2f(0,1);glVertex3f(i, 0, j);
+			glTexCoord2f(0,0);glVertex3f(i, 0, j+1);
+			glTexCoord2f(1,0);glVertex3f(i+1, 0, j+1);
+			glTexCoord2f(1,1);glVertex3f(i+1, 0, j);
 		}
 	}
 	glEnd();
+	glDisable(GL_TEXTURE_2D);
 }
 float robot_arm_angle=0;
 float robot_joint_angle=0;
@@ -517,46 +523,52 @@ void drawFactory(){
 	int wall_height=20;
 	int house_width=50;
 	int house_length=25;
-	glBindTexture(GL_TEXTURE_2D, txId[0]);  //Use this texture
-	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+
 	
 	//walls
-	glColor3f(299/255,299/255.0, 299/255.0);
-
+  glEnable(GL_TEXTURE_2D);
+  	  		glBindTexture(GL_TEXTURE_2D, txId[0]);
+	glColor3f(1,1,1);
 	glPushMatrix();
-	  glColor3f(299/255,299/255.0, 299/255.0);
 	  glBegin(GL_QUADS);
-		glTexCoord2f(0,wall_height);glVertex3f(-house_width, wall_height, -house_length);
-		glTexCoord2f(0,0);glVertex3f(-house_width, 0, -house_length);
-		glTexCoord2f(house_width,0);glVertex3f(house_width, 0, -house_length);
-		glTexCoord2f(house_width,wall_height);glVertex3f(house_width, wall_height, -house_length);
-		
-		glVertex3f(house_width, wall_height, -house_length);
-		glVertex3f(house_width, 0, -house_length);
-		glVertex3f(house_width, 0, house_length);
-		glVertex3f(house_width, wall_height, house_length);
-		
-		glVertex3f(house_width, wall_height, house_length);
-		glVertex3f(house_width, 0, house_length);
-		glVertex3f(-house_width, 0, house_length);
-		glVertex3f(-house_width, wall_height, house_length);
-		
-		glVertex3f(-house_width, wall_height, house_length);
-		glVertex3f(-house_width, 0, house_length);
+		glTexCoord2f(0,0.5);
+		glVertex3f(-house_width, wall_height, -house_length);
+		glTexCoord2f(0,0);
 		glVertex3f(-house_width, 0, -house_length);
-		glVertex3f(-house_width, wall_height, -house_length);
-		
-		//ceiling
-		glVertex3f(-house_width, wall_height, house_length);
-		glVertex3f(-house_width, wall_height, -house_length);
+		glTexCoord2f(0.5,0);
+		glVertex3f(house_width, 0, -house_length);
+		glTexCoord2f(0.5,0.5);
 		glVertex3f(house_width, wall_height, -house_length);
-		glVertex3f(house_width, wall_height, house_length);
 		
+		glTexCoord2f(0,1);glVertex3f(house_width, wall_height, -house_length);
+		glTexCoord2f(0,0);glVertex3f(house_width, 0, -house_length);
+		glTexCoord2f(1,0);glVertex3f(house_width, 0, house_length);
+		glTexCoord2f(1,1);glVertex3f(house_width, wall_height, house_length);
+		
+		glTexCoord2f(0,1);glVertex3f(house_width, wall_height, house_length);
+		glTexCoord2f(0,0);glVertex3f(house_width, 0, house_length);
+		glTexCoord2f(1,0);glVertex3f(-house_width, 0, house_length);
+		glTexCoord2f(1,1);glVertex3f(-house_width, wall_height, house_length);
+		
+		glTexCoord2f(0,1);glVertex3f(-house_width, wall_height, house_length);
+		glTexCoord2f(0,0);glVertex3f(-house_width, 0, house_length);
+		glTexCoord2f(1,0);glVertex3f(-house_width, 0, -house_length);
+		glTexCoord2f(1,1);glVertex3f(-house_width, wall_height, -house_length);
 		
 		
 	  glEnd();
-	
+	  
 
+	  		glBindTexture(GL_TEXTURE_2D, txId[2]);
+	  glBegin(GL_QUADS);		
+		//ceiling
+		glTexCoord2f(0,10);glVertex3f(-house_width, wall_height, house_length);
+		glTexCoord2f(0,0);glVertex3f(-house_width, wall_height, -house_length);
+		glTexCoord2f(10,0);glVertex3f(house_width, wall_height, -house_length);
+		glTexCoord2f(10,10);glVertex3f(house_width, wall_height, house_length);
+		glEnd();
+	glDisable(GL_TEXTURE_2D);
+	glColor3f(299/255,299/255.0, 299/255.0);
 
 	glPopMatrix();
 	
@@ -653,7 +665,7 @@ float bunny_pos_y=0;
 //--the scene.
 void display()  
 {
-	float lpos[4] = {0, 18., 0., 1.0};  //light's position
+	float lpos[4] = {25, 18., 25., 1.0};  //light's position
 	float spot_pos[] = {-40, 20, 3, 1.0}; 
 	float spotdir[]={0, -1.0, 0};
 	
@@ -729,6 +741,7 @@ void initialize()
 	float grey[4] = {0.2, 0.2, 0.2, 1.0};
 	
 	loadMeshFile("195.off");
+	glEnable(GL_TEXTURE_2D);
 	loadTexture();
 
 	glEnable(GL_LIGHTING);					//Enable OpenGL states
