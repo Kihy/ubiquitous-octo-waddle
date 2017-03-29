@@ -7,7 +7,27 @@
 #include <climits>
 #include <cmath> 
 #include <GL/freeglut.h>
+#include "loadTGA.h"
 using namespace std;
+GLuint txId[2];   //Texture ids
+
+void loadTexture()				
+{
+	glGenTextures(2, txId); 	// Create 2 texture ids
+
+	glBindTexture(GL_TEXTURE_2D, txId[0]);  //Use this texture
+    loadTGA("wall.tga");
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);	//Set texture parameters
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);	
+
+	glBindTexture(GL_TEXTURE_2D, txId[1]);  //Use this texture
+    loadTGA("floor.tga");
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);	//Set texture parameters
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);	
+	
+	
+	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+}
 
 //--Globals ---------------------------------------------------------------
 float *x, *y, *z;  //vertex coordinate arrays
@@ -151,17 +171,19 @@ void cylinder(float base_rad, float height){
 //--Draws a grid of lines on the floor plane -------------------------------
 void drawFloor()
 {
-	glColor3f(0., 0., 0.);			//Floor colour
-	
-glBegin(GL_QUADS);
-	for(float i = -50; i < 50; i+=0.1)
+	glColor3f(1,1,1);			//Floor colour
+	glNormal3f(0,1,0);
+	glBegin(GL_QUADS);
+	glBindTexture(GL_TEXTURE_2D, txId[1]);  //Use this texture
+	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+	for(int i = -50; i < 50; i++)
 	{
-		for(float j = -25;  j < 25; j+=0.1)
+		for(int j = -25;  j < 25; j++)
 		{
-			glVertex3f(i, 0.0, j);
-			glVertex3f(i, 0.0, j+0.1);
-			glVertex3f(i+0.1, 0.0, j+0.1);
-			glVertex3f(i+0.1, 0.0, j);
+			glTexCoord2f(1,0);glVertex3f(i, 0.0, j);
+			glTexCoord2f(1,1);glVertex3f(i, 0.0, j++);
+			glTexCoord2f(0,1);glVertex3f(i++, 0.0, j++);
+			glTexCoord2f(0,0);glVertex3f(i++, 0.0, j);
 		}
 	}
 	glEnd();
@@ -490,11 +512,12 @@ void drawBuddha()
 	
 }
 float white[4]={1,1,1,1,};
+float black[4]={0,0,0,0};
 void drawFactory(){
 	int wall_height=20;
 	int house_width=100;
 	int house_length=50;
-	
+
 	//North wall
 	glColor3f(299/255,299/255.0, 299/255.0);
 
@@ -533,7 +556,7 @@ void drawFactory(){
 	  glutSolidCube(1);
 	glPopMatrix();
 	
-
+	
 	
 	//Transmission belt
 	glColor3f(0, 0, 1);
@@ -690,8 +713,9 @@ void display()
 		glTranslatef(0,15,-24.25);
 		drawClock();
 	glPopMatrix();
-	
+		glutSwapBuffers();
 	glFlush();
+
 }
 
 //------- Initialize OpenGL parameters -----------------------------------
@@ -700,16 +724,16 @@ void initialize()
 	float grey[4] = {0.2, 0.2, 0.2, 1.0};
 	
 	loadMeshFile("195.off");
+	loadTexture();
 
 	glEnable(GL_LIGHTING);					//Enable OpenGL states
-	//glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT0);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, grey);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, white);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, black);
     
     glEnable(GL_LIGHT1);
     
-    glLightfv(GL_LIGHT1, GL_AMBIENT, grey);
     glLightfv(GL_LIGHT1, GL_DIFFUSE, white);
     glLightfv(GL_LIGHT1, GL_SPECULAR, white);    
 	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 30);
@@ -763,7 +787,7 @@ void processSpecialKeys(int key, int xx, int yy) {
 		cam-=0.2;
 		break;
 	}
-	
+			
 	glutPostRedisplay();
 }
 
@@ -876,7 +900,7 @@ void Timer(int value){
 int main(int argc, char** argv)
 {
    glutInit(&argc, argv);
-   glutInitDisplayMode (GLUT_SINGLE | GLUT_DEPTH);
+   glutInitDisplayMode (GLUT_DOUBLE | GLUT_DEPTH);
    glutInitWindowSize (600, 600); 
    glutInitWindowPosition (10, 10);
    glutCreateWindow ("Factory");
