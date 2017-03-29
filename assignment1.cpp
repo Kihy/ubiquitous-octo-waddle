@@ -24,7 +24,7 @@ void loadTexture()
     loadTGA("floor.tga");
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);	//Set texture parameters
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);	
-	
+		cout << " File successfully read." << endl;
 	
 	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
 }
@@ -515,46 +515,51 @@ float white[4]={1,1,1,1,};
 float black[4]={0,0,0,0};
 void drawFactory(){
 	int wall_height=20;
-	int house_width=100;
-	int house_length=50;
-
-	//North wall
+	int house_width=50;
+	int house_length=25;
+	glBindTexture(GL_TEXTURE_2D, txId[0]);  //Use this texture
+	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+	
+	//walls
 	glColor3f(299/255,299/255.0, 299/255.0);
 
 	glPushMatrix();
-	  glTranslatef(0, wall_height/2, -house_length/2);
-	  glScalef(house_width, wall_height, 0.5);
-	  glutSolidCube(1);
-	glPopMatrix();
+	  glColor3f(299/255,299/255.0, 299/255.0);
+	  glBegin(GL_QUADS);
+		glTexCoord2f(0,wall_height);glVertex3f(-house_width, wall_height, -house_length);
+		glTexCoord2f(0,0);glVertex3f(-house_width, 0, -house_length);
+		glTexCoord2f(house_width,0);glVertex3f(house_width, 0, -house_length);
+		glTexCoord2f(house_width,wall_height);glVertex3f(house_width, wall_height, -house_length);
+		
+		glVertex3f(house_width, wall_height, -house_length);
+		glVertex3f(house_width, 0, -house_length);
+		glVertex3f(house_width, 0, house_length);
+		glVertex3f(house_width, wall_height, house_length);
+		
+		glVertex3f(house_width, wall_height, house_length);
+		glVertex3f(house_width, 0, house_length);
+		glVertex3f(-house_width, 0, house_length);
+		glVertex3f(-house_width, wall_height, house_length);
+		
+		glVertex3f(-house_width, wall_height, house_length);
+		glVertex3f(-house_width, 0, house_length);
+		glVertex3f(-house_width, 0, -house_length);
+		glVertex3f(-house_width, wall_height, -house_length);
+		
+		//ceiling
+		glVertex3f(-house_width, wall_height, house_length);
+		glVertex3f(-house_width, wall_height, -house_length);
+		glVertex3f(house_width, wall_height, -house_length);
+		glVertex3f(house_width, wall_height, house_length);
+		
+		
+		
+	  glEnd();
 	
-	//South wall
 
-	glPushMatrix();
-	  glTranslatef(0, wall_height/2, house_length/2);
-	  glScalef(house_width, wall_height, 0.5);
-	  glutSolidCube(1);
+
 	glPopMatrix();
 	
-	//West wall
-	glPushMatrix();
-	  glTranslatef(-house_width/2, wall_height/2, 0);
-	  glScalef(0.5, wall_height, house_length);
-	  glutSolidCube(1);
-	glPopMatrix();
-	
-	//East wall
-	glPushMatrix();
-	  glTranslatef(house_width/2, wall_height/2, 0);
-	  glScalef(0.5, wall_height, house_length);
-	  glutSolidCube(1);
-	glPopMatrix();
-	
-	//draw ceiling
-	glPushMatrix();
-	  glTranslatef(0, wall_height, 0);
-	  glScalef(house_width, 0.5, house_length);
-	  glutSolidCube(1);
-	glPopMatrix();
 	
 	
 	
