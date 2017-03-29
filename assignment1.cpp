@@ -30,6 +30,7 @@ void loadTexture()
     loadTGA("ceiling.tga");
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);	//Set texture parameters
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);	
+	
 		cout << " File successfully read." << endl;
 	
 	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
@@ -176,19 +177,23 @@ void cylinder(float base_rad, float height){
 
 //--Draws a grid of lines on the floor plane -------------------------------
 void drawFloor()
-{	glColor3f(0.2,0.2,0.2);	
+{	
+	float floor_height=-0.1;
+	glColor3f(0.2,0.2,0.2);	
 	glNormal3f(0,1,0);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, txId[1]);  //Use this texture
-
+	float u=0,v=0;
 	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
 		glBegin(GL_QUADS);
-			for(int i=-50;i<50;i++){
-				for(int j=-25;j<25;j++){
-			glTexCoord2f(0,1);glVertex3f(i, 0, j);
-			glTexCoord2f(0,0);glVertex3f(i, 0, j+1);
-			glTexCoord2f(1,0);glVertex3f(i+1, 0, j+1);
-			glTexCoord2f(1,1);glVertex3f(i+1, 0, j);
+			for(float i=-50;i<50;i+=0.1){
+				for(float j=-25;j<25;j+=0.1){
+			glTexCoord2f(u,v+0.01);glVertex3f(i, floor_height, j);
+			glTexCoord2f(u,v);glVertex3f(i, floor_height, j+0.1);
+			glTexCoord2f(u+0.02,v);glVertex3f(i+0.1, floor_height, j+0.1);
+			glTexCoord2f(u+0.02,v+0.01);glVertex3f(i+0.1, floor_height, j);
+			u+=0.01;
+			v+=0.02; 
 		}
 	}
 	glEnd();
@@ -201,7 +206,7 @@ float claw_angle=80;
 //--Draws a robot------------------------------------------------------------
 void drawRobot()
 {
-	glColor3f(1,1,0);
+
 
 	
 	
@@ -298,7 +303,11 @@ void drawRobot()
     }
     
 //--Draws a transmission belt -----------------------------------------------
-void drawBelt(float rad, float height, float length, int hide=0){
+void drawBelt(float rad, float height, float length, int hide=0, int shadow=0){
+//legs
+if(!shadow){
+glColor3f(0.5,0.5,0.5);
+}
 	if(!hide){
 	glPushMatrix();
 		glTranslatef(0,2,-0.25);
@@ -326,12 +335,10 @@ void drawBelt(float rad, float height, float length, int hide=0){
 	
 	glTranslatef(0,4,0);
 		
-	glPushMatrix();
-		glTranslatef(length/2,rad,height/2);
-		glScalef(length,0,height);
-		glutSolidCube(1);
-	glPopMatrix();
-	
+
+	if(!shadow){
+	glColor3f(0,0,0);
+}
 	glPushMatrix();
 		cylinder(rad,height);
 		glTranslatef(length,0,0);
@@ -343,12 +350,19 @@ void drawBelt(float rad, float height, float length, int hide=0){
 		glScalef(length,0,height);
 		glutSolidCube(1);
 	glPopMatrix();
+	
+	glPushMatrix();
+		glTranslatef(length/2,rad,height/2);
+		glScalef(length,0,height);
+		glutSolidCube(1);
+	glPopMatrix();
 	}
 
 //--Draws a production machine
-void drawMachine()
+void drawMachine(int doubleSided=0, int shadow=0)
 {
-	glColor3f(1,0,0);
+	//legs
+	//glColor3f(1,1,1);
 	glPushMatrix();
 		glTranslatef(-2,2,-2);
 		glScalef(1,4,1);
@@ -381,6 +395,26 @@ void drawMachine()
 		glScalef(5,7,5);
 		glutSolidCube(1);
 	glPopMatrix();
+	
+	glPushMatrix();
+	if(!shadow){
+	glColor3f(0,0,0);
+}
+//layers
+	glTranslatef(2.51,5.5,0);
+	glScalef(0,5,4);
+	glutSolidCube(1);
+	
+	glPopMatrix();
+	
+	if(doubleSided){
+			glPushMatrix();
+	glTranslatef(-2.51,5.5,0);
+	glScalef(0,5,4);
+	glutSolidCube(1);
+	glPopMatrix();
+		}
+	
 	}
 
 //--Draws a buddha model constructed using GLUT objects ------------------
@@ -523,11 +557,16 @@ void drawFactory(){
 	int wall_height=20;
 	int house_width=50;
 	int house_length=25;
+	float shadowMat[16]={18,0,0,0,
+		0,0,0,-1,
+		0,0,18,0,
+		0,0,0,18};
 
 	
 	//walls
   glEnable(GL_TEXTURE_2D);
   	  		glBindTexture(GL_TEXTURE_2D, txId[0]);
+  	  		glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
 	glColor3f(1,1,1);
 	glPushMatrix();
 	  glBegin(GL_QUADS);
@@ -572,11 +611,8 @@ void drawFactory(){
 
 	glPopMatrix();
 	
-	
-	
-	
 	//Transmission belt
-	glColor3f(0, 0, 1);
+		glColor3f(0.5,0.5,0.5);
 	glPushMatrix();
 		glTranslatef(-40,0,0);
 		drawBelt(1,4,20,1);
@@ -589,25 +625,76 @@ void drawFactory(){
 	
 	
 	//draw production machine
+		glColor3f(0.5,0.5,0.5);
 	glPushMatrix();
 		glTranslatef(-40,0,2);
-		drawMachine();
+		drawMachine(0,0);
 	glPopMatrix();
 	
 	//draw transformation machine
+	glColor3f(0.5,0.5,0.5);
 	glPushMatrix();
 		glTranslatef(20,0,2);
-		drawMachine();
+		drawMachine(1,0);
 	glPopMatrix();
-			
-			
+	
+	//shadows
+	glDisable(GL_LIGHTING);
+	glPushMatrix();
+	    glMultMatrixf(shadowMat);
+		glTranslatef(-40,0,0);
+		glColor4f(0.2,0.2,0.2,1);
+		drawBelt(1,4,20,1,1);
+	glPopMatrix();
+
+	glPushMatrix();
+	    glMultMatrixf(shadowMat);
+		glTranslatef(5,0,0);
+		glColor4f(0.2,0.2,0.2,1);
+		drawBelt(1,4,30,0,1);
+	glPopMatrix();
+
+
+	glPushMatrix();
+	    glMultMatrixf(shadowMat);
+		glTranslatef(-40,0,2);
+		glColor4f(0.2,0.2,0.2,1);
+		drawMachine(0,1);
+	glPopMatrix();
+	
+	glPushMatrix();
+	    glMultMatrixf(shadowMat);
+		glTranslatef(20,0,2);
+		glColor4f(0.2,0.2,0.2,1);
+		drawMachine(1,1);
+	glPopMatrix();
+	
+	glEnable(GL_LIGHTING);
+	
+
 			
 	//big vacuum
+	glColor3f(105/255.0,105/255.0,105/255.0);
 	glPushMatrix();
 		glTranslatef(43,20,2);
 		glRotatef(90,1,0,0);
 		cylinder(2,5);
 	glPopMatrix();
+	
+	glDisable(GL_LIGHTING);
+	glPushMatrix();
+	    glMultMatrixf(shadowMat);
+
+
+		drawMachine(1,1);
+		glTranslatef(43,20,2);
+		glRotatef(90,1,0,0);
+				glColor4f(0.2,0.2,0.2,1);
+		cylinder(2,5);
+	glPopMatrix();
+	glEnable(GL_LIGHTING);
+			
+	
 
 	}
 int second=7887;
@@ -665,7 +752,11 @@ float bunny_pos_y=0;
 //--the scene.
 void display()  
 {
-	float lpos[4] = {25, 18., 25., 1.0};  //light's position
+	float lpos[4] = {0, 18., 0., 1.0};  //light's position
+	float shadowMat[16]={18,0,0,0,
+		0,0,0,-1,
+		0,0,18,0,
+		0,0,0,18};
 	float spot_pos[] = {-40, 20, 3, 1.0}; 
 	float spotdir[]={0, -1.0, 0};
 	
@@ -689,6 +780,7 @@ void display()
 
 	
 	drawFactory();
+	//spotlight
 	glPushMatrix();
 		glTranslatef(teapot_pos,bunny_pos_y,0);
 		glTranslatef(box_pos_stage_2,0,0);
@@ -711,6 +803,7 @@ void display()
 		glutSolidCube(2);
 	glPopMatrix();
 	
+	
 	//draw bunny
 	glPushMatrix();
 		glTranslatef(teapot_pos,bunny_pos_y,0);
@@ -719,11 +812,25 @@ void display()
 		displayBunny();
 	glPopMatrix();
 	
+	
+	//robot
+		glColor3f(1,1,0);
 	glPushMatrix();
 		glTranslatef(-robot_pos,0,0);
 		glTranslatef(-10,0,2);
 		drawRobot();
 	glPopMatrix();
+	
+	//robot shadow
+	glDisable(GL_LIGHTING);
+	glColor4f(0.2,0.2,0.2,1);
+	glPushMatrix();
+		glMultMatrixf(shadowMat);
+		glTranslatef(-robot_pos,0,0);
+		glTranslatef(-10,0,2);
+		drawRobot();
+	glPopMatrix();
+	glEnable(GL_LIGHTING);
 	
 	//draw clock in factory
 	glPushMatrix();
@@ -748,7 +855,7 @@ void initialize()
 	glEnable(GL_LIGHT0);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, grey);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, black);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, white);
     
     glEnable(GL_LIGHT1);
     
