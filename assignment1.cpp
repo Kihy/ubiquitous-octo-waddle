@@ -10,11 +10,12 @@
 #include <GL/glut.h>
 #include "loadTGA.h"
 using namespace std;
-GLuint txId[3];   //Texture ids
-
+GLuint txId[9];   //Texture ids
 void loadTexture()				
 {
-	glGenTextures(3, txId); 	// Create 2 texture ids
+	glGenTextures(9, txId); 	// Create 2 texture ids
+	
+
 
 	glBindTexture(GL_TEXTURE_2D, txId[0]);  //Use this texture
     loadTGA("wall.tga");
@@ -30,6 +31,48 @@ void loadTexture()
     loadTGA("ceiling.tga");
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);	//Set texture parameters
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);	
+	
+	glBindTexture(GL_TEXTURE_2D, txId[3]);  //Use this texture
+    loadTGA("nuke_bk.tga");
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+    glBindTexture(GL_TEXTURE_2D, txId[4]);  //Use this texture
+    loadTGA("nuke_rt.tga");
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);	//Set texture parameters
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+    glBindTexture(GL_TEXTURE_2D, txId[5]);  //Use this texture
+    loadTGA("nuke_ft.tga");
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);	//Set texture parameters
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+    glBindTexture(GL_TEXTURE_2D, txId[6]);  //Use this texture
+    loadTGA("nuke_lf.tga");
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);	//Set texture parameters
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+    glBindTexture(GL_TEXTURE_2D, txId[7]);  //Use this texture
+    loadTGA("nuke_up.tga");
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);	//Set texture parameters
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+    glBindTexture(GL_TEXTURE_2D, txId[8]);  //Use this texture
+    loadTGA("nuke_dn.tga");
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);	//Set texture parameters
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	
 		cout << " File successfully read." << endl;
 	
@@ -179,7 +222,7 @@ void cylinder(float base_rad, float height){
 void drawFloor()
 {	
 	float floor_height=-0.1;
-	glColor3f(0.2,0.2,0.2);	
+	glColor3f(0.9,0.9,0.9);	
 	glNormal3f(0,1,0);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, txId[1]);  //Use this texture
@@ -681,18 +724,6 @@ void drawFactory(){
 		cylinder(2,5);
 	glPopMatrix();
 	
-	glDisable(GL_LIGHTING);
-	glPushMatrix();
-	    glMultMatrixf(shadowMat);
-
-
-		drawMachine(1,1);
-		glTranslatef(43,20,2);
-		glRotatef(90,1,0,0);
-				glColor4f(0.2,0.2,0.2,1);
-		cylinder(2,5);
-	glPopMatrix();
-	glEnable(GL_LIGHTING);
 			
 	
 
@@ -740,7 +771,67 @@ void drawClock(){
 	glPopMatrix();
 	
 	}
+void loadSkybox(){
+		glPushMatrix();
+		//float white[4] = {1.0, 1.0, 1.0, 1.0};
+		//float black[4] = {0.0, 0.0, 0.0, 1.0};
+		//glMaterialfv(GL_FRONT, GL_SPECULAR, black);
+		//glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, white);
+		glEnable(GL_TEXTURE_2D);
+		// Back
+		glBindTexture(GL_TEXTURE_2D, txId[3]);
+		glBegin(GL_QUADS);
+			glTexCoord2f(0.0, 0.0);		glVertex3f(-256.0, -256.0, -256.0);
+			glTexCoord2f(1.0, 0.0);		glVertex3f( 256.0, -256.0, -256.0);
+			glTexCoord2f(1.0, 1.0);		glVertex3f( 256.0,  256.0, -256.0);
+			glTexCoord2f(0.0, 1.0);		glVertex3f(-256.0,  256.0, -256.0);
+		glEnd();
+		// Right
+		glBindTexture(GL_TEXTURE_2D, txId[4]);
+		glBegin(GL_QUADS);
+			glTexCoord2f(0.0, 0.0);		glVertex3f(256.0, -256.0, -256.0);
+			glTexCoord2f(1.0, 0.0);		glVertex3f(256.0, -256.0,  256.0);
+			glTexCoord2f(1.0, 1.0);		glVertex3f(256.0,  256.0,  256.0);
+			glTexCoord2f(0.0, 1.0);		glVertex3f(256.0,  256.0, -256.0);
+		glEnd();
+		// Front
+		glBindTexture(GL_TEXTURE_2D, txId[5]);
+		glBegin(GL_QUADS);
+			glTexCoord2f(0.0, 0.0);		glVertex3f( 256.0, -256.0, 256.0);
+			glTexCoord2f(1.0, 0.0);		glVertex3f(-256.0, -256.0, 256.0);
+			glTexCoord2f(1.0, 1.0);		glVertex3f(-256.0,  256.0, 256.0);
+			glTexCoord2f(0.0, 1.0);		glVertex3f( 256.0,  256.0, 256.0);
+		glEnd();
+		// Left
+		glBindTexture(GL_TEXTURE_2D, txId[6]);
+		glBegin(GL_QUADS);
+			glTexCoord2f(0.0, 0.0);		glVertex3f(-256.0, -256.0,  256.0);
+			glTexCoord2f(1.0, 0.0);		glVertex3f(-256.0, -256.0, -256.0);
+			glTexCoord2f(1.0, 1.0);		glVertex3f(-256.0,  256.0, -256.0);
+			glTexCoord2f(0.0, 1.0);		glVertex3f(-256.0,  256.0,  256.0);
+		glEnd();
+		// Top
+		glBindTexture(GL_TEXTURE_2D, txId[7]);
+		glBegin(GL_QUADS);
+			glTexCoord2f(0.0, 0.0);		glVertex3f( 256.0,  256.0, -256.0);
+			glTexCoord2f(1.0, 0.0);		glVertex3f( 256.0,  256.0,  256.0);
+			glTexCoord2f(1.0, 1.0);		glVertex3f(-256.0,  256.0,  256.0);
+			glTexCoord2f(0.0, 1.0);		glVertex3f(-256.0,  256.0, -256.0);
+		glEnd();
+		
+	   glBindTexture(GL_TEXTURE_2D, txId[8]);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0, 0.0);		glVertex3f( 256.0,  -0.2, -256.0);
+		glTexCoord2f(1.0, 0.0);		glVertex3f( 256.0,  -0.2,  256.0);
+		glTexCoord2f(1.0, 1.0);		glVertex3f(-256.0,  -0.2,  256.0);
+		glTexCoord2f(0.0, 1.0);		glVertex3f(-256.0,  -0.2, -256.0);
 
+		 glEnd();
+		glDisable(GL_TEXTURE_2D);
+		//glMaterialfv(GL_FRONT, GL_SPECULAR, white);
+	glPopMatrix();
+	glDisable(GL_BLEND);
+	}
 
 float robot_pos=0;
 float box_pos_stage_2=0;
@@ -770,6 +861,7 @@ void display()
 	glLightfv(GL_LIGHT0,GL_POSITION, lpos);   //Set light position
 	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spotdir);
 
+	loadSkybox();
 	
     drawFloor();
 	
@@ -833,10 +925,13 @@ void display()
 	glEnable(GL_LIGHTING);
 	
 	//draw clock in factory
+	    glLightfv(GL_LIGHT0, GL_SPECULAR, black);
 	glPushMatrix();
 		glTranslatef(0,15,-24.25);
 		drawClock();
 	glPopMatrix();
+	    glLightfv(GL_LIGHT0, GL_SPECULAR, white);
+	
 		glutSwapBuffers();
 	glFlush();
 
@@ -850,6 +945,7 @@ void initialize()
 	loadMeshFile("195.off");
 	glEnable(GL_TEXTURE_2D);
 	loadTexture();
+		glClearColor(1., 1., 1., 1.);
 
 	glEnable(GL_LIGHTING);					//Enable OpenGL states
 	glEnable(GL_LIGHT0);
@@ -1017,7 +1113,7 @@ void Timer(int value){
 	break;
 	}
 	
-	    glutPostRedisplay();
+	glutPostRedisplay();
     glutTimerFunc(100, Timer, value);
 }
 
