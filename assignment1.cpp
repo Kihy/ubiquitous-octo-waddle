@@ -175,9 +175,9 @@ void displayBunny()
 }
 
 //-- Consts for le UFO
-const int N = 42;  // Total number of vertices on the base curve
-float vx[N] = {0,5,5,15,18,19,19.5,19.75,19.875,19.9,19.93,19.97,19.98,20,19.98,19.97,19.93,19.9,19.875,19.75,19.5,19,18,15,5,5,4.75,4.5,4.25,4,3.75,3.5,3,2.75,2.5,2.25,2,1.75,1.5,1.25,1,0};
-float vy[N] = {0,0,4,4,4.2,4.6,4.8,5,5.2,5.4,5.6,5.8,6,6.2,6.4,6.6,6.8,7,7.2,7.4,7.6,7.8,8,8,12,14,15,15.5,15.75,15.85,15.9,15.91,15.92,15.93,15.94,15.95,15.96,15.97,15.98,15.99,16,16};
+const int N = 43;  // Total number of vertices on the base curve
+float vx[N] = {0,5,5,15,18,19,19.5,19.75,19.875,19.9,19.93,19.97,19.98,20,19.98,19.97,19.93,19.9,19.875,19.75,19.5,19,18,15,5,5,4.75,4.5,4.25,4,3.75,3.5,3.25,3,2.75,2.5,2.25,2,1.75,1.5,1.25,1,0};
+float vy[N] = {0,0,4,4,4.2,4.4,4.6,4.8,5,5.2,5.4,5.6,5.8,6,6.2,6.4,6.6,6.8,7,7.2,7.4,7.6,7.8,8,8,12,14,15,15.5,15.75,15.875,15.9,15.91,15.92,15.93,15.94,15.95,15.96,15.97,15.98,15.99,16,16};
 float vz[N] = {0};
 void normal2(float x1, float y1, float z1, 
             float x2, float y2, float z2,
@@ -192,13 +192,13 @@ void normal2(float x1, float y1, float z1,
 }
 
 void drawUFO(){
-		float wx[N], wy[N], wz[N]; 
+	float wx[N], wy[N], wz[N]; 
 	float theta=0.174533;
 	for(int j=0;j<36;j++){
 	for(int i=0;i<N;i++){
 		wx[i]=vx[i]*cos(theta)+vz[i]*sin(theta);
 		wy[i]=vy[i];
-		wz[i]=-vz[i]*sin(theta)+vz[i]*cos(theta);
+		wz[i]=-vx[i]*sin(theta)+vz[i]*cos(theta);
 		}
 	glBegin(GL_TRIANGLE_STRIP);
 	for(int i = 0; i < N; i++)
@@ -206,10 +206,12 @@ void drawUFO(){
 		if(i > 0) normal2( wx[i-1], wy[i-1], wz[i-1],
 		vx[i-1], vy[i-1], vz[i-1],
 		vx[i], vy[i], vz[i] );
+		
 		glVertex3f(vx[i], vy[i], vz[i]);
 		if(i > 0) normal2( wx[i-1], wy[i-1], wz[i-1],
 		vx[i], vy[i], vz[i],
 		wx[i], wy[i], wz[i] );
+		
 		glVertex3f(wx[i], wy[i], wz[i]);	
 	}
 	glEnd();
@@ -292,8 +294,8 @@ void drawFloor()
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
 }
-float robot_arm_angle=0;
-float robot_joint_angle=0;
+float robot_arm_angle=25;
+float robot_joint_angle=25;
 float robot_arm_y=0;
 float claw_angle=80;
 //--Draws a robot------------------------------------------------------------
@@ -895,6 +897,7 @@ float box_pos_stage_2=0;
 float teapot_pos=0;
 float box_y=0;
 float bunny_pos_y=0;
+float teapot_pos2=0;
 //--Display: ---------------------------------------------------------------
 //--This is the main display module containing function calls for generating
 //--the scene.
@@ -929,16 +932,30 @@ void display()
 
 	
 	drawFactory();
+	
+	//UFO
+	glColor3f(1,0,0);
+	glPushMatrix();
+		glTranslatef(teapot_pos2,0,0);
+		glTranslatef(box_pos_stage_2,0,0);
+		glTranslatef(-10,5,2);
+		glRotatef(box_y,0,1,0);
+		glTranslatef(10,-5,-2);
+		glTranslatef(box_pos,0,0);
+		glTranslatef(-40,18,2);
+		glScalef(0.1,0.1,0.1);
+		drawUFO();
+	glPopMatrix();
+	
 	//spotlight
 	glPushMatrix();
-		glTranslatef(teapot_pos,bunny_pos_y,0);
+		glTranslatef(teapot_pos2,0,0);
 		glTranslatef(box_pos_stage_2,0,0);
 		glTranslatef(-10,5,2);
 		glRotatef(box_y,0,1,0);
 		glTranslatef(10,-5,-2);
 		glTranslatef(box_pos,0,0);
 		glColor3f(1,0,0);
-		drawUFO();
 		glLightfv(GL_LIGHT1, GL_POSITION, spot_pos);
 	glPopMatrix();
 	
@@ -1027,6 +1044,7 @@ void initialize()
 	glMaterialf(GL_FRONT, GL_SHININESS, 10);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_NORMALIZE);
+	glEnable(GL_SMOOTH);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -1072,11 +1090,11 @@ void processSpecialKeys(int key, int xx, int yy) {
 	glutPostRedisplay();
 }
 
-float dx=0.5;
-float dtheta=10;
+float dx=0.1;
+float dtheta=0.5;
 float dpelvis=0.7;
 int stage=1;
-float suction=8;
+float suction=40;
 float Vvelocity=0;
 //  ------- Timer ----------------------------------------------------------
 void stage1(){
@@ -1089,7 +1107,7 @@ void stage1(){
 	if(robot_arm_angle<35){
 		robot_joint_angle+=dtheta;
 		}
-	if(box_pos==19){
+	if(box_pos>=19){
 		stage=2;
 		}
 	
@@ -1131,13 +1149,19 @@ void stage3(int value){
 				}else{
 					if (teapot_pos<24){
 		teapot_pos+=dx;
+		teapot_pos2+=dx;
 		if(teapot_pos>16 && bunny_pos_y<15){
-				Vvelocity+=suction*value/1000;
-				bunny_pos_y+=Vvelocity*value/1000;
-				
+				Vvelocity+=suction*value/10000;
+				bunny_pos_y+=Vvelocity*value/10000;
+		teapot_pos2-=dx;
 		}
 		}else{
+			if(teapot_pos2>-60){
+				teapot_pos2-=dx;
+				}
+			else{
 			stage=4;
+			}
 			}
 		}
 		}
@@ -1151,10 +1175,11 @@ void resetObj(){
 	Vvelocity=0;
 	bunny_pos_y=0;
 	teapot_pos=0;
+	teapot_pos2=0;
 	stage=1;
 	}
 void Timer(int value){
-	second-=60;
+	second-=6;
 	minute=second/60;
 	hour=second/3600;
 	
@@ -1174,7 +1199,7 @@ void Timer(int value){
 	}
 	
 	glutPostRedisplay();
-    glutTimerFunc(100, Timer, value);
+    glutTimerFunc(10, Timer, value);
 }
 
 //  ------- Main: Initialize glut window and register call backs -----------
@@ -1189,7 +1214,7 @@ int main(int argc, char** argv)
 
    glutDisplayFunc(display);
    glutSpecialFunc(processSpecialKeys); 
-   glutTimerFunc(100,Timer,100);
+   glutTimerFunc(10,Timer,100);
    glutMainLoop();
    return 0;
 }
