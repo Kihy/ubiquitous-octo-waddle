@@ -787,7 +787,7 @@ void drawFactory(){
 	
 
 	}
-int second=3600;
+float second=0;
 float minute=0;
 float hour=0;
 //--Draws a clock ---------------------------------------------------------
@@ -903,12 +903,12 @@ float teapot_pos2=0;
 //--the scene.
 void display()  
 {
-	float lpos[4] = {0, 18., 0., 1.0};  //light's position
-	float shadowMat[16]={18,0,0,0,
-		0,0,0,-1,
-		0,0,18,0,
-		0,0,0,18};
-	float spot_pos[] = {-40, 20, 3, 1.0}; 
+	float lpos[4] = {0, 20., 3., 1.0};  //light's position
+	float shadowMat[16]={lpos[1],0,0,0,
+		-lpos[0],0,-lpos[2],-1,
+		0,0,lpos[1],0,
+		0,0,0,lpos[1]};
+	float spot_pos[] = {-40, 18, 3, 1.0}; 
 	float spotdir[]={0, -1.0, 0};
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
@@ -1179,7 +1179,7 @@ void resetObj(){
 	stage=1;
 	}
 void Timer(int value){
-	second-=6;
+	second-=0.12;
 	minute=second/60;
 	hour=second/3600;
 	
