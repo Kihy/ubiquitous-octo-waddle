@@ -174,6 +174,56 @@ void displayBunny()
 
 }
 
+//-- Consts for le UFO
+const int N = 42;  // Total number of vertices on the base curve
+float vx[N] = {0,5,5,15,18,19,19.5,19.75,19.875,19.9,19.93,19.97,19.98,20,19.98,19.97,19.93,19.9,19.875,19.75,19.5,19,18,15,5,5,4.75,4.5,4.25,4,3.75,3.5,3,2.75,2.5,2.25,2,1.75,1.5,1.25,1,0};
+float vy[N] = {0,0,4,4,4.2,4.6,4.8,5,5.2,5.4,5.6,5.8,6,6.2,6.4,6.6,6.8,7,7.2,7.4,7.6,7.8,8,8,12,14,15,15.5,15.75,15.85,15.9,15.91,15.92,15.93,15.94,15.95,15.96,15.97,15.98,15.99,16,16};
+float vz[N] = {0};
+void normal2(float x1, float y1, float z1, 
+            float x2, float y2, float z2,
+		      float x3, float y3, float z3 )
+{
+	  float nx, ny, nz;
+	  nx = y1*(z2-z3)+ y2*(z3-z1)+ y3*(z1-z2);
+	  ny = z1*(x2-x3)+ z2*(x3-x1)+ z3*(x1-x2);
+	  nz = x1*(y2-y3)+ x2*(y3-y1)+ x3*(y1-y2);
+
+      glNormal3f(nx, ny, nz);
+}
+
+void drawUFO(){
+		float wx[N], wy[N], wz[N]; 
+	float theta=0.174533;
+	for(int j=0;j<36;j++){
+	for(int i=0;i<N;i++){
+		wx[i]=vx[i]*cos(theta)+vz[i]*sin(theta);
+		wy[i]=vy[i];
+		wz[i]=-vz[i]*sin(theta)+vz[i]*cos(theta);
+		}
+	glBegin(GL_TRIANGLE_STRIP);
+	for(int i = 0; i < N; i++)
+	{
+		if(i > 0) normal2( wx[i-1], wy[i-1], wz[i-1],
+		vx[i-1], vy[i-1], vz[i-1],
+		vx[i], vy[i], vz[i] );
+		glVertex3f(vx[i], vy[i], vz[i]);
+		if(i > 0) normal2( wx[i-1], wy[i-1], wz[i-1],
+		vx[i], vy[i], vz[i],
+		wx[i], wy[i], wz[i] );
+		glVertex3f(wx[i], wy[i], wz[i]);	
+	}
+	glEnd();
+	
+	for(int i=0;i<N;i++){
+		vx[i]=wx[i];
+		vy[i]=wy[i];
+		vz[i]=wz[i];
+		}
+
+
+	}
+	}
+
 //--Globals ---------------------------------------------------------------
 
 // Camera controls
@@ -406,6 +456,9 @@ void drawMachine(int doubleSided=0, int shadow=0)
 {
 	//legs
 	//glColor3f(1,1,1);
+	if(!shadow){
+		glColor3f(207/255.0,181/255.0,59/255.0);
+		}
 	glPushMatrix();
 		glTranslatef(-2,2,-2);
 		glScalef(1,4,1);
@@ -433,6 +486,9 @@ void drawMachine(int doubleSided=0, int shadow=0)
 	glPopMatrix();
 	
 	//main body
+	if(!shadow){
+		glColor3f(212/255.0,175/255.0,55/255.0);
+		}
 	glPushMatrix();
 		glTranslatef(0,6,0);
 		glScalef(5,7,5);
@@ -441,7 +497,7 @@ void drawMachine(int doubleSided=0, int shadow=0)
 	
 	glPushMatrix();
 	if(!shadow){
-	glColor3f(0,0,0);
+	glColor3f(0.1,0.1,0.1);
 }
 //layers
 	glTranslatef(2.51,5.5,0);
@@ -598,6 +654,7 @@ float white[4]={1,1,1,1,};
 float black[4]={0,0,0,0};
 void drawFactory(){
 	int wall_height=20;
+	float wall_bot=-0.1;
 	int house_width=50;
 	int house_length=25;
 	float shadowMat[16]={18,0,0,0,
@@ -613,28 +670,28 @@ void drawFactory(){
 	glColor3f(1,1,1);
 	glPushMatrix();
 	  glBegin(GL_QUADS);
-		glTexCoord2f(0,0.5);
+		glTexCoord2f(0,1);
 		glVertex3f(-house_width, wall_height, -house_length);
 		glTexCoord2f(0,0);
-		glVertex3f(-house_width, 0, -house_length);
-		glTexCoord2f(0.5,0);
-		glVertex3f(house_width, 0, -house_length);
-		glTexCoord2f(0.5,0.5);
+		glVertex3f(-house_width, wall_bot, -house_length);
+		glTexCoord2f(1,0);
+		glVertex3f(house_width, wall_bot, -house_length);
+		glTexCoord2f(1,1);
 		glVertex3f(house_width, wall_height, -house_length);
 		
 		glTexCoord2f(0,1);glVertex3f(house_width, wall_height, -house_length);
-		glTexCoord2f(0,0);glVertex3f(house_width, 0, -house_length);
-		glTexCoord2f(1,0);glVertex3f(house_width, 0, house_length);
+		glTexCoord2f(0,0);glVertex3f(house_width, wall_bot, -house_length);
+		glTexCoord2f(1,0);glVertex3f(house_width, wall_bot, house_length);
 		glTexCoord2f(1,1);glVertex3f(house_width, wall_height, house_length);
 		
 		glTexCoord2f(0,1);glVertex3f(house_width, wall_height, house_length);
-		glTexCoord2f(0,0);glVertex3f(house_width, 0, house_length);
-		glTexCoord2f(1,0);glVertex3f(-house_width, 0, house_length);
+		glTexCoord2f(0,0);glVertex3f(house_width, wall_bot, house_length);
+		glTexCoord2f(1,0);glVertex3f(-house_width, wall_bot, house_length);
 		glTexCoord2f(1,1);glVertex3f(-house_width, wall_height, house_length);
 		
 		glTexCoord2f(0,1);glVertex3f(-house_width, wall_height, house_length);
-		glTexCoord2f(0,0);glVertex3f(-house_width, 0, house_length);
-		glTexCoord2f(1,0);glVertex3f(-house_width, 0, -house_length);
+		glTexCoord2f(0,0);glVertex3f(-house_width, wall_bot, house_length);
+		glTexCoord2f(1,0);glVertex3f(-house_width, wall_bot, -house_length);
 		glTexCoord2f(1,1);glVertex3f(-house_width, wall_height, -house_length);
 		
 		
@@ -644,10 +701,10 @@ void drawFactory(){
 	  		glBindTexture(GL_TEXTURE_2D, txId[2]);
 	  glBegin(GL_QUADS);		
 		//ceiling
-		glTexCoord2f(0,10);glVertex3f(-house_width, wall_height, house_length);
-		glTexCoord2f(0,0);glVertex3f(-house_width, wall_height, -house_length);
-		glTexCoord2f(10,0);glVertex3f(house_width, wall_height, -house_length);
-		glTexCoord2f(10,10);glVertex3f(house_width, wall_height, house_length);
+		glTexCoord2f(0,10);glVertex3f(-house_width, wall_height-0.1, house_length);
+		glTexCoord2f(0,0);glVertex3f(-house_width, wall_height-0.1, -house_length);
+		glTexCoord2f(10,0);glVertex3f(house_width, wall_height-0.1, -house_length);
+		glTexCoord2f(10,10);glVertex3f(house_width, wall_height-0.1, house_length);
 		glEnd();
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(299/255,299/255.0, 299/255.0);
@@ -728,16 +785,16 @@ void drawFactory(){
 	
 
 	}
-int second=7887;
-int minute=0;
-int hour=0;
+int second=3600;
+float minute=0;
+float hour=0;
 //--Draws a clock ---------------------------------------------------------
 void drawClock(){
 	glPushMatrix();
 			glColor3f(0,0,0);
 	//hours
 		glPushMatrix();
-			glRotatef(hour,0,0,1);
+			glRotatef(hour*5,0,0,1);
 			glTranslatef(0,0.75,0);
 			glScalef(0.4,1.5,0.1);
 			glutSolidCube(1);
@@ -880,6 +937,8 @@ void display()
 		glRotatef(box_y,0,1,0);
 		glTranslatef(10,-5,-2);
 		glTranslatef(box_pos,0,0);
+		glColor3f(1,0,0);
+		drawUFO();
 		glLightfv(GL_LIGHT1, GL_POSITION, spot_pos);
 	glPopMatrix();
 	
@@ -906,7 +965,7 @@ void display()
 	
 	
 	//robot
-		glColor3f(1,1,0);
+		glColor3f(139/255.0,69/255.0,19/255.0);
 	glPushMatrix();
 		glTranslatef(-robot_pos,0,0);
 		glTranslatef(-10,0,2);
@@ -944,6 +1003,7 @@ void initialize()
 	
 	loadMeshFile("195.off");
 	glEnable(GL_TEXTURE_2D);
+	
 	loadTexture();
 		glClearColor(1., 1., 1., 1.);
 
@@ -959,7 +1019,7 @@ void initialize()
     glLightfv(GL_LIGHT1, GL_SPECULAR, white);    
 	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 30);
 	glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 0.01);
-    
+       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	
 	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
  	glEnable(GL_COLOR_MATERIAL);
@@ -1094,9 +1154,9 @@ void resetObj(){
 	stage=1;
 	}
 void Timer(int value){
-	second-=6;
+	second-=60;
 	minute=second/60;
-	hour=minute/60;
+	hour=second/3600;
 	
 	switch(stage){
 	case 1:
@@ -1122,7 +1182,7 @@ int main(int argc, char** argv)
 {
    glutInit(&argc, argv);
    glutInitDisplayMode (GLUT_DOUBLE | GLUT_DEPTH);
-   glutInitWindowSize (600, 600); 
+   glutInitWindowSize (1000, 1000); 
    glutInitWindowPosition (10, 10);
    glutCreateWindow ("Factory");
    initialize();
