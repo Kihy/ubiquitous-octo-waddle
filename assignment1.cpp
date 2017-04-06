@@ -21,16 +21,22 @@ void loadTexture()
     loadTGA("wall.tga");
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);	//Set texture parameters
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	glBindTexture(GL_TEXTURE_2D, txId[1]);  //Use this texture
     loadTGA("floor.tga");
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);	//Set texture parameters
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);	
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	
 	
 	glBindTexture(GL_TEXTURE_2D, txId[2]);  //Use this texture
     loadTGA("ceiling.tga");
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);	//Set texture parameters
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);	
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	
 	
 	glBindTexture(GL_TEXTURE_2D, txId[3]);  //Use this texture
     loadTGA("nuke_bk.tga");
@@ -238,12 +244,20 @@ float xcam=-25,zcam=25.0f;
 // camera height
 float cam=7;
 
+// the key states. These variables will be zero
+//when no key is being presses
+float deltaAngle = 0.0f;
+float deltaMove = 0;
+float deltaHeight=0;
+
 // Robot Controls
 float arm_angle=0;
 int shoulder=-20, elbow=-60, shoulderY=0;
 int knee_left=120,knee_right=145, pelvis=-120, pelvisZ=65;
 float body_pos_z=0;
 float pelvis_y=0;
+
+float t=0;
 
 // Box
 float box_pos=0;
@@ -283,12 +297,12 @@ void drawFloor()
 		glBegin(GL_QUADS);
 			for(float i=-50;i<50;i+=0.1){
 				for(float j=-25;j<25;j+=0.1){
-			glTexCoord2f(u,v+0.01);glVertex3f(i, floor_height, j);
-			glTexCoord2f(u,v);glVertex3f(i, floor_height, j+0.1);
-			glTexCoord2f(u+0.02,v);glVertex3f(i+0.1, floor_height, j+0.1);
-			glTexCoord2f(u+0.02,v+0.01);glVertex3f(i+0.1, floor_height, j);
-			u+=0.01;
-			v+=0.02; 
+			glTexCoord2f(u,v);glVertex3f(i, floor_height, j);
+			glTexCoord2f(u,v+0.1);glVertex3f(i, floor_height, j+0.1);
+			glTexCoord2f(u+0.1,v+0.1);glVertex3f(i+0.1, floor_height, j+0.1);
+			glTexCoord2f(u+0.1,v);glVertex3f(i+0.1, floor_height, j);
+			u+=0.1;
+			v+=0.1; 
 		}
 	}
 	glEnd();
@@ -669,6 +683,7 @@ void drawFactory(){
   glEnable(GL_TEXTURE_2D);
   	  		glBindTexture(GL_TEXTURE_2D, txId[0]);
   	  		glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+  	  		
 	glColor3f(1,1,1);
 	glPushMatrix();
 	  glBegin(GL_QUADS);
@@ -676,25 +691,25 @@ void drawFactory(){
 		glVertex3f(-house_width, wall_height, -house_length);
 		glTexCoord2f(0,0);
 		glVertex3f(-house_width, wall_bot, -house_length);
-		glTexCoord2f(1,0);
+		glTexCoord2f(4,0);
 		glVertex3f(house_width, wall_bot, -house_length);
-		glTexCoord2f(1,1);
+		glTexCoord2f(4,1);
 		glVertex3f(house_width, wall_height, -house_length);
 		
 		glTexCoord2f(0,1);glVertex3f(house_width, wall_height, -house_length);
 		glTexCoord2f(0,0);glVertex3f(house_width, wall_bot, -house_length);
-		glTexCoord2f(1,0);glVertex3f(house_width, wall_bot, house_length);
-		glTexCoord2f(1,1);glVertex3f(house_width, wall_height, house_length);
+		glTexCoord2f(2,0);glVertex3f(house_width, wall_bot, house_length);
+		glTexCoord2f(2,1);glVertex3f(house_width, wall_height, house_length);
 		
 		glTexCoord2f(0,1);glVertex3f(house_width, wall_height, house_length);
 		glTexCoord2f(0,0);glVertex3f(house_width, wall_bot, house_length);
-		glTexCoord2f(1,0);glVertex3f(-house_width, wall_bot, house_length);
-		glTexCoord2f(1,1);glVertex3f(-house_width, wall_height, house_length);
+		glTexCoord2f(4,0);glVertex3f(-house_width, wall_bot, house_length);
+		glTexCoord2f(4,1);glVertex3f(-house_width, wall_height, house_length);
 		
 		glTexCoord2f(0,1);glVertex3f(-house_width, wall_height, house_length);
 		glTexCoord2f(0,0);glVertex3f(-house_width, wall_bot, house_length);
-		glTexCoord2f(1,0);glVertex3f(-house_width, wall_bot, -house_length);
-		glTexCoord2f(1,1);glVertex3f(-house_width, wall_height, -house_length);
+		glTexCoord2f(2,0);glVertex3f(-house_width, wall_bot, -house_length);
+		glTexCoord2f(2,1);glVertex3f(-house_width, wall_height, -house_length);
 		
 		
 	  glEnd();
@@ -892,12 +907,34 @@ void loadSkybox(){
 	glDisable(GL_BLEND);
 	}
 
+//------------Computes position and direction
+
+void computePos(float deltaMove) {
+
+	xcam += deltaMove * lx * 0.5f;
+	zcam += deltaMove * lz * 0.5f;
+}
+
+void computeDir(float deltaAngle) {
+
+	angle += deltaAngle;
+	lx = sin(angle);
+	lz = -cos(angle);
+}
+
+
+void computeHeight(float deltaHeight){
+	cam+=deltaHeight;
+	}
+
+
 float robot_pos=0;
 float box_pos_stage_2=0;
 float teapot_pos=0;
 float box_y=0;
 float bunny_pos_y=0;
 float teapot_pos2=0;
+float buddhaX,buddhaY,buddhaZ=0;
 //--Display: ---------------------------------------------------------------
 //--This is the main display module containing function calls for generating
 //--the scene.
@@ -910,6 +947,13 @@ void display()
 		0,0,0,lpos[1]};
 	float spot_pos[] = {-40, 18, 3, 1.0}; 
 	float spotdir[]={0, -1.0, 0};
+	
+	if (deltaMove)
+		computePos(deltaMove);
+	if (deltaAngle)
+		computeDir(deltaAngle);
+	if(deltaHeight)
+	computeHeight(deltaHeight);
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glMatrixMode(GL_MODELVIEW);
@@ -924,9 +968,13 @@ void display()
 	loadSkybox();
 	
     drawFloor();
-	
+    
+	//buddha
 	glPushMatrix();
-	glTranslatef(0,1000,0);
+		
+		glTranslatef(buddhaX,buddhaY,buddhaZ);
+		glTranslatef(0,1000,0);
+		glRotatef(t*100,0,1,0);
 		drawBuddha();
 	glPopMatrix();
 
@@ -1053,41 +1101,30 @@ void initialize()
 	glFrustum(-5.0, 5.0, -5.0, 5.0, 5.0, 1000.0);   //Camera Frustum
 }
 
-//------------ Special key event callback ---------------------------------
-// To enable the use of left and right arrow keys to rotate the scene
-void processSpecialKeys(int key, int xx, int yy) {
 
-	float fraction = 1;
+//------------ Special key event callback ---------------------------------
+
+void pressKey(int key, int xx, int yy) {
+
+	switch (key) {
+		case GLUT_KEY_LEFT : deltaAngle = -0.05f; break;
+		case GLUT_KEY_RIGHT : deltaAngle = 0.05f; break;
+		case GLUT_KEY_UP : deltaMove = 0.5f; break;
+		case GLUT_KEY_DOWN : deltaMove = -0.5f; break;
+		case GLUT_KEY_PAGE_UP: deltaHeight+=0.2; break;
+		case GLUT_KEY_PAGE_DOWN: deltaHeight-=0.2; break;
+	}
+}
+void releaseKey(int key, int x, int y) {
 
 	switch (key) {
 		case GLUT_KEY_LEFT :
-			angle -= 0.1f;
-			lx = sin(angle);
-			lz = -cos(angle);
-			break;
-		case GLUT_KEY_RIGHT :
-			angle += 0.1f;
-			lx = sin(angle);
-			lz = -cos(angle);
-			break;
+		case GLUT_KEY_RIGHT : deltaAngle = 0.0f;break;
 		case GLUT_KEY_UP :
-			xcam += lx * fraction;
-			zcam += lz * fraction;
-			break;
-		case GLUT_KEY_DOWN :
-			xcam -= lx * fraction;
-			zcam -= lz * fraction;
-			break;
-			
-		case GLUT_KEY_PAGE_UP:
-		cam+=0.2;
-		break;
-		case GLUT_KEY_PAGE_DOWN:
-		cam-=0.2;
-		break;
+		case GLUT_KEY_DOWN : deltaMove = 0;break;
+		case GLUT_KEY_PAGE_UP: 
+		case GLUT_KEY_PAGE_DOWN:deltaHeight=0;break;
 	}
-			
-	glutPostRedisplay();
 }
 
 float dx=0.1;
@@ -1178,10 +1215,17 @@ void resetObj(){
 	teapot_pos2=0;
 	stage=1;
 	}
+
 void Timer(int value){
 	second-=0.12;
 	minute=second/60;
 	hour=second/3600;
+	t+=0.01;
+	buddhaX=8*cos(5*t);
+	buddhaY=5*sin(4*t);
+
+	
+
 	
 	switch(stage){
 	case 1:
@@ -1213,7 +1257,9 @@ int main(int argc, char** argv)
    initialize();
 
    glutDisplayFunc(display);
-   glutSpecialFunc(processSpecialKeys); 
+   glutSpecialFunc(pressKey);
+	glutIgnoreKeyRepeat(1);
+	glutSpecialUpFunc(releaseKey);
    glutTimerFunc(10,Timer,100);
    glutMainLoop();
    return 0;
